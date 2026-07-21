@@ -12,7 +12,7 @@ $nomeUsuario = $_SESSION['user_nome'] ?? 'Operador';
 $inicialNome = strtoupper(substr($nomeUsuario, 0, 1));
 
 $statusCounts = [
-    'Pendente' => 0,
+    'triagem' => 0,
     'Em Execução' => 0,
     'Em Análise' => 0,
     'Revisão' => 0,
@@ -20,7 +20,7 @@ $statusCounts = [
 ];
 
 try {
-    $stmtCounts = $pdo->query("SELECT status, COUNT(*) AS total FROM ocorrencias GROUP BY status");
+    $stmtCounts = $pdo->query("SELECT status, COUNT(*) AS total FROM preventivas_rede GROUP BY status");
     foreach ($stmtCounts->fetchAll() as $row) {
         if (isset($statusCounts[$row['status']])) {
             $statusCounts[$row['status']] = $row['total'];
@@ -28,7 +28,7 @@ try {
     }
 
     $stmtTasks = $pdo->query(
-        "SELECT id, titulo, equipamento, local, status, data_criacao FROM ocorrencias ORDER BY FIELD(status,'Pendente','Em Execução','Em Análise','Revisão','Concluído'), data_criacao DESC"
+        "SELECT id, gpon, splitter, uf, localidade, status, prioridade, criado_em FROM preventivas_rede ORDER BY FIELD(status,'Pendente','Em Execução','Em Análise','Revisão','Concluído'), criado_em DESC"
     );
     $tasks = $stmtTasks->fetchAll();
 } catch (PDOException $e) {
@@ -102,17 +102,11 @@ try {
 
           <!-- Navegação Desktop -->
           <nav class="hidden md:flex space-x-1">
-            <a href="index.php" class="px-4 py-2 rounded-lg text-sm font-semibold bg-vivo-purple text-white shadow-sm transition-all">Início</a>
-            <a href="#" class="px-4 py-2 rounded-lg text-sm font-medium text-gray-600 hover:text-vivo-purple hover:bg-vivo-purpleLight transition-all">Em Andamento</a>
-            <a href="#" class="px-4 py-2 rounded-lg text-sm font-medium text-gray-600 hover:text-vivo-purple hover:bg-vivo-purpleLight transition-all flex items-center space-x-1">
-              <span>Em Análise</span>
-              <span class="bg-amber-100 text-amber-800 text-[10px] px-1.5 py-0.2 rounded-full font-bold">4</span>
-            </a>
-            <a href="#" class="px-4 py-2 rounded-lg text-sm font-medium text-gray-600 hover:text-vivo-purple hover:bg-vivo-purpleLight transition-all flex items-center space-x-1">
-              <span>Revisão</span>
-              <span class="bg-blue-100 text-blue-800 text-[10px] px-1.5 py-0.2 rounded-full font-bold">2</span>
-            </a>
-            <a href="#" class="px-4 py-2 rounded-lg text-sm font-medium text-gray-600 hover:text-vivo-purple hover:bg-vivo-purpleLight transition-all">Executados</a>
+            <a href="/dashboard" class="px-4 py-2 rounded-lg text-sm font-semibold bg-vivo-purple text-white shadow-sm transition-all">Início</a>
+            <a href="/preventivas?status=execucao" class="px-4 py-2 rounded-lg text-sm font-medium text-gray-600 hover:text-vivo-purple hover:bg-vivo-purpleLight transition-all">Em Andamento</a>
+            <a href="/preventivas?status=analise" class="px-4 py-2 rounded-lg text-sm font-medium text-gray-600 hover:text-vivo-purple hover:bg-vivo-purpleLight transition-all">Em Análise</a>
+            <a href="/preventivas?status=revisao" class="px-4 py-2 rounded-lg text-sm font-medium text-gray-600 hover:text-vivo-purple hover:bg-vivo-purpleLight transition-all">Revisão</a>
+            <a href="/preventivas?status=concluido" class="px-4 py-2 rounded-lg text-sm font-medium text-gray-600 hover:text-vivo-purple hover:bg-vivo-purpleLight transition-all">Executados</a>
           </nav>
 
           <!-- Perfil e Logout -->
@@ -160,7 +154,7 @@ try {
           <div class="p-3 bg-amber-50 text-amber-600 rounded-lg"><i data-lucide="clock" class="w-6 h-6"></i></div>
           <div>
             <span class="text-xs text-gray-500 block font-medium">Pendente</span>
-            <span class="text-xl font-bold text-gray-800"><?= $statusCounts['Pendente'] ?></span>
+            <span class="text-xl font-bold text-gray-800"><?= $statusCounts['triagem'] ?></span>
           </div>
         </div>
         <div class="bg-white p-4 rounded-xl shadow-sm border border-vivo-grayBorder flex items-center space-x-3">
@@ -227,9 +221,9 @@ try {
                       <span class="text-sm font-bold text-gray-800"><?= htmlspecialchars($task['titulo']) ?></span>
                       <span class="text-[10px] uppercase tracking-[0.2em] px-2 py-1 rounded-full border <?= $badgeClass ?>"><?= htmlspecialchars($task['status']) ?></span>
                     </div>
-                    <p class="text-xs text-gray-500">ID: #<?= htmlspecialchars($task['id']) ?> • <?= htmlspecialchars($task['equipamento']) ?> • <?= htmlspecialchars($task['local']) ?></p>
+                    <p class="text-xs text-gray-500">ID: #<?= htmlspecialchars($task['id']) ?> • <?= htmlspecialchars($task['gpon']) ?> / <?= htmlspecialchars($task['splitter']) ?> • <?= htmlspecialchars($task['localidade']) ?></p>
                   </div>
-                  <a href="/detalhe-preventiva?id=<?= htmlspecialchars($task['id']) ?>" class="text-xs uppercase font-bold text-vivo-purple hover:text-vivo-purpleDark">Ver detalhes</a>
+                  <a href="/preventiva/<?= htmlspecialchars($task['id']) ?>" class="text-xs uppercase font-bold text-vivo-purple hover:text-vivo-purpleDark">Ver detalhes</a>
                 </div>
               <?php endforeach; ?>
             <?php endif; ?>
@@ -250,11 +244,11 @@ try {
 
     <!-- NAVEGAÇÃO MOBILE (PWA Bar) -->
     <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-vivo-grayBorder shadow-lg z-50 flex justify-around items-center h-16 px-2">
-      <a href="index.php" class="flex flex-col items-center justify-center w-14 text-vivo-purple">
+      <a href="/dashboard" class="flex flex-col items-center justify-center w-14 text-vivo-purple">
         <i data-lucide="home" class="w-5 h-5"></i>
         <span class="text-[9px] mt-1 font-bold">Início</span>
       </a>
-      <a href="logout.php" class="flex flex-col items-center justify-center w-14 text-gray-400 hover:text-vivo-purple">
+      <a href="/logout" class="flex flex-col items-center justify-center w-14 text-gray-400 hover:text-vivo-purple">
         <i data-lucide="log-out" class="w-5 h-5"></i>
         <span class="text-[9px] mt-1 font-medium">Sair</span>
       </a>

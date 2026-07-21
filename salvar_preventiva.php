@@ -8,15 +8,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $descricao = trim($_POST['descricao'] ?? '');
 
     if (!$preventivaId) {
-        header('Location: /dashboard');
+        header('Location: /preventivas');
         exit;
     }
 
     if ($acao === 'aceitar') {
-        $stmt = $pdo->prepare("UPDATE ocorrencias SET status = 'Em Execução' WHERE id = :id");
-        $stmt->execute([':id' => $preventivaId]);
+        $stmt = $pdo->prepare("UPDATE preventivas_rede SET status = 'Em Execução', enviado_execucao_em = NOW(), tecnico_id = :tecnico_id WHERE id = :id");
+        $stmt->execute([':id' => $preventivaId, ':tecnico_id' => $_SESSION['user_id']]);
     } elseif ($acao === 'finalizar' && !empty($descricao)) {
-        $stmt = $pdo->prepare("UPDATE ocorrencias SET descricao = :descricao, status = 'Em Análise' WHERE id = :id");
+        $stmt = $pdo->prepare("UPDATE preventivas_rede SET observacao_abertura = :descricao, status = 'Em Análise', enviado_revisao_em = NOW() WHERE id = :id");
         $stmt->execute([
             ':descricao' => $descricao,
             ':id' => $preventivaId
@@ -60,6 +60,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    header('Location: /detalhe-preventiva?id=' . urlencode($preventivaId));
+    header('Location: /preventiva/' . urlencode($preventivaId));
     exit;
 }
