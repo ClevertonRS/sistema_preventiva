@@ -22,7 +22,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_SESSION['user_usuario'] = $user['usuario'];
                 $_SESSION['user_nivel'] = $user['nivel'];
 
-                header("Location: index.php");
+                header('Location: /dashboard');
                 exit;
             } else {
                 $erro = 'Usuário ou senha inválidos, ou conta inativa.';
@@ -75,10 +75,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
             </div>
             <h1 class="text-3xl font-extrabold tracking-tight">vivo</h1>
-            <p class="text-purple-100 text-xs mt-1">Painel Operacional PWA</p>
-        </div>
-
-        <!-- Formulário -->
+            <p class="text-purple-100 text-xs mt-1">Painel  Operacional PWA</p>
+        </div> 
+     
+        <!-- Formulário --> 
         <form method="POST" action="" class="p-6 space-y-4">
 
             <?php if (!empty($erro)): ?>

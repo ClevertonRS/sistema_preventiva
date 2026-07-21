@@ -6,17 +6,17 @@
         <span class="text-[9px] mt-1 font-bold">Início</span>
       </a>
       <a href="/dashboard" class="flex flex-col items-center justify-center w-14 text-gray-400 hover:text-vivo-purple">
-        <i data-lucide="award" class="w-5 h-5"></i>
-        <span class="text-[9px] mt-1 font-medium">A Vivo</span>
+        <i data-lucide="clock" class="w-5 h-5"></i>
+        <span class="text-[9px] mt-1 font-medium">Andamento</span>
       </a>
       <a href="/dashboard" class="flex flex-col items-center justify-center w-14 text-gray-400 hover:text-vivo-purple relative">
         <span class="absolute top-1 right-2 w-2 h-2 rounded-full bg-amber-500"></span>
-        <i data-lucide="clock" class="w-5 h-5"></i>
+        <i data-lucide="scan-search" class="w-5 h-5"></i>
         <span class="text-[9px] mt-1 font-medium">Análise</span>
       </a>
       <a href="/dashboard" class="flex flex-col items-center justify-center w-14 text-gray-400 hover:text-vivo-purple relative">
         <span class="absolute top-1 right-2 w-2 h-2 rounded-full bg-blue-500"></span>
-        <i data-lucide="edit" class="w-5 h-5"></i>
+        <i data-lucide="edit-3" class="w-5 h-5"></i>
         <span class="text-[9px] mt-1 font-medium">Revisão</span>
       </a>
       <a href="/dashboard" class="flex flex-col items-center justify-center w-14 text-gray-400 hover:text-vivo-purple">
@@ -38,6 +38,30 @@
 
     <script>
       lucide.createIcons();
+
+      const installBtn = document.getElementById('install-pwa');
+      let deferredPrompt = null;
+
+      window.addEventListener('beforeinstallprompt', (event) => {
+        event.preventDefault();
+        deferredPrompt = event;
+        if (installBtn) {
+          installBtn.classList.remove('hidden');
+        }
+      });
+
+      if (installBtn) {
+        installBtn.addEventListener('click', async () => {
+          if (!deferredPrompt) {
+            return;
+          }
+
+          deferredPrompt.prompt();
+          await deferredPrompt.userChoice;
+          deferredPrompt = null;
+          installBtn.classList.add('hidden');
+        });
+      }
     </script>
   </body>
 </html>

@@ -1,9 +1,9 @@
-const CACHE_NAME = "vivo-preventivas-v2";
+const CACHE_NAME = "vivo-preventivas-v3";
 const ASSETS_TO_CACHE = [
-  "/",
-  "/login",
-  "/dashboard",
-  "/assets/manifest.json",
+  "./",
+  "./login.php",
+  "./dashboard.php",
+  "./assets/icons/manifest.json",
   "https://cdn.tailwindcss.com",
 ];
 
