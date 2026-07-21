@@ -1,27 +1,93 @@
 <!doctype html>
 <html lang="pt-BR">
-<head>
-	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<title>TechOps Mobile</title>
-	<script src="https://cdn.tailwindcss.com"></script>
-	<style>
-		:root{
-			/* Cores base - Tema Vivo (roxo) */
-			--vivo-purple: #6B21A8; /* tonalidade principal */
-			--vivo-purple-dark: #4b0e86; /* hover / destaque escuro */
-			--vivo-purple-50: #f5edf9; /* background suave */
-			--vivo-dark: #2b0e3a;
-			--vivo-bg: #fbf7fe;
-			--vivo-coral: #ff6b6b;
-		}
-		.bg-vivo-purple{background-color:var(--vivo-purple)}
-		.text-vivo-dark{color:var(--vivo-dark)}
-		.bg-vivo-bg{background-color:var(--vivo-bg)}
-		.bg-vivo-coral{background-color:var(--vivo-coral)}
-		.bg-vivo-purple-50{background-color:var(--vivo-purple-50)}
-		.hover\:bg-vivo-dark:hover{background-color:var(--vivo-purple-dark)}
-	</style>
-</head>
-<body class="min-h-screen bg-gray-50 flex flex-col">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Painel Vivo - Home</title>
+
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#660099" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="Painel Vivo" />
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              vivo: {
+                purple: "#660099",
+                purpleDark: "#4d0073",
+                purpleLight: "#f4ebff",
+                accent: "#ff007f",
+                grayLight: "#f6f6f9",
+                grayBorder: "#e2e8f0",
+                textDark: "#333333",
+              },
+            },
+          },
+        },
+      };
+    </script>
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+      ::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #f1f1f1;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #c5a3e8;
+        border-radius: 10px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: #660099;
+      }
+    </style>
+  </head>
+
+  <body class="bg-vivo-grayLight text-vivo-textDark font-sans min-h-screen flex flex-col pb-16 md:pb-0">
+
+    <header class="bg-white border-b border-vivo-grayBorder sticky top-0 z-50 shadow-sm">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between h-16">
+          <div class="flex items-center space-x-3">
+            <div class="text-white p-2 rounded-xl flex items-center justify-center shadow-md shadow-purple-200 bg-vivo-purple">
+              <span class="font-black text-xl">V</span>
+            </div>
+            <span class="text-xl font-extrabold tracking-tight text-vivo-purple">vivo</span>
+          </div>
+
+          <nav class="hidden md:flex space-x-1">
+            <a href="/dashboard" class="px-4 py-2 rounded-lg text-sm font-semibold bg-vivo-purple text-white shadow-sm transition-all">Início</a>
+            <a href="/dashboard" class="px-4 py-2 rounded-lg text-sm font-medium text-gray-600 hover:text-vivo-purple hover:bg-vivo-purpleLight transition-all flex items-center space-x-1">
+              <span>Em Andamento</span>
+            </a>
+            <a href="/dashboard" class="px-4 py-2 rounded-lg text-sm font-medium text-gray-600 hover:text-vivo-purple hover:bg-vivo-purpleLight transition-all flex items-center space-x-1">
+              <span>Em Análise</span>
+              <span class="bg-amber-100 text-amber-800 text-[10px] px-1.5 py-0.2 rounded-full font-bold">4</span>
+            </a>
+            <a href="/dashboard" class="px-4 py-2 rounded-lg text-sm font-medium text-gray-600 hover:text-vivo-purple hover:bg-vivo-purpleLight transition-all flex items-center space-x-1">
+              <span>Revisão</span>
+              <span class="bg-blue-100 text-blue-800 text-[10px] px-1.5 py-0.2 rounded-full font-bold">2</span>
+            </a>
+            <a href="/dashboard" class="px-4 py-2 rounded-lg text-sm font-medium text-gray-600 hover:text-vivo-purple hover:bg-vivo-purpleLight transition-all flex items-center space-x-1">
+              <span>Executados</span>
+            </a>
+          </nav>
+
+          <div class="flex items-center space-x-3">
+            <a href="/logout" class="w-9 h-9 rounded-full bg-vivo-purple text-white flex items-center justify-center font-bold text-sm border-2 border-vivo-purpleLight">C</a>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
 
