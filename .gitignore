@@ -1,0 +1,16 @@
+# Banco de Dados Local (NUNCA deve ir para o GitHub)
+/db.sqlite3
+/db.sqlite3-journal
+
+# Uploads e Evidências dos Técnicos (mantém a pasta, ignora o conteúdo)
+/uploads/*
+!/uploads/.gitkeep
+
+# Arquivos do Sistema Operacional e Editores
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Logs e arquivos temporários
+*.log
