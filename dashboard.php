@@ -28,7 +28,7 @@ try {
     }
 
     $stmtTasks = $pdo->query(
-        "SELECT id, gpon, splitter, uf, localidade, status, prioridade, criado_em FROM preventivas_rede ORDER BY FIELD(status,'Pendente','Em Execução','Em Análise','Revisão','Concluído'), criado_em DESC"
+        "SELECT id, gpon, splitter, uf, localidade, status, prioridade, criado_em FROM preventivas_rede ORDER BY FIELD(status,'triagem','Em Execução','Em Análise','Revisão','Concluído'), criado_em DESC"
     );
     $tasks = $stmtTasks->fetchAll();
 } catch (PDOException $e) {

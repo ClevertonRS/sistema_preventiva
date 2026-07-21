@@ -9,7 +9,7 @@ $statusMap = [
     'execucao' => 'Em Execução',
     'analise' => 'Em Análise',
     'revisao' => 'Revisão',
-    'concluido' => 'Concluído',
+    'concluida' => 'Concluído',
 ];
 
 $statusFilter = $statusMap[$statusSlug] ?? '';
