@@ -4,7 +4,7 @@ $host    = 'localhost';
 $dbname  = 'tom_preventiva'; // Altere para o nome do seu banco MySQL
 $usuario = 'tom_preventiva'; // Altere para seu usuário do MySQL (ex: root)
 $senha   = 'Filhotinho';   // Altere para sua senha do MySQL
-
+####################################
 try {
     // Conexão via PDO para MySQL
     $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8mb4", $usuario, $senha);
