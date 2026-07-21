@@ -14,7 +14,7 @@ switch ($uri) {
         break;
 
     case '/detalhe-preventiva':
-        require __DIR__ . '/detalhe-preventiva.php';
+        require __DIR__ . '/detalhe_preventiva.php';
         break;
 
     case '/salvar-preventiva':
