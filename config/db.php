@@ -2,7 +2,7 @@
 // Configurações do MySQL
 $host    = 'localhost';
 $dbname  = 'tom_preventiva'; // Altere para o nome do seu banco MySQL
-$usuario = 'tom'; // Altere para seu usuário do MySQL (ex: root)
+$usuario = 'tom_preventiva'; // Altere para seu usuário do MySQL (ex: root)
 $senha   = 'Filhotinho';   // Altere para sua senha do MySQL
 
 try {
