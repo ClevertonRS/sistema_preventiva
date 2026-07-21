@@ -1,6 +1,6 @@
 <?php
 // Configurações do MySQL
-$host    = 'tom.simsolucoesweb.com.br';
+$host    = 'locahost';
 $dbname  = 'tom_preventiva'; // Altere para o nome do seu banco MySQL
 $usuario = 'tom'; // Altere para seu usuário do MySQL (ex: root)
 $senha   = 'Filhotinho';   // Altere para sua senha do MySQL
