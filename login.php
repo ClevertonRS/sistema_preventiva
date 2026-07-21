@@ -12,6 +12,7 @@ if (isset($_SESSION['usuario_id'])) {
 require_once __DIR__ . '/config/db.php';
 
 $erro = '';
+$usuario = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $usuario = trim($_POST['usuario'] ?? '');
@@ -24,6 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $user = $stmt->fetch();
 
             if ($user && password_verify($senha, $user['senha'])) {
+                session_regenerate_id(true);
                 $_SESSION['usuario_id']   = $user['id'];
                 $_SESSION['usuario_nome'] = $user['nome'];
 
@@ -57,7 +59,7 @@ require_once __DIR__ . '/includes/header.php';
 
         <!-- Mensagem de Erro -->
         <?php if (!empty($erro)): ?>
-            <div class="bg-red-50 text-red-600 text-xs p-3 rounded-xl border border-red-200 text-center font-semibold">
+            <div role="alert" class="bg-red-50 text-red-600 text-xs p-3 rounded-xl border border-red-200 text-center font-semibold">
                 <?= htmlspecialchars($erro) ?>
             </div>
         <?php endif; ?>
@@ -66,13 +68,15 @@ require_once __DIR__ . '/includes/header.php';
         <form action="/login" method="POST" class="space-y-4">
             <div>
                 <label class="block text-xs font-bold text-vivo-dark uppercase tracking-wider mb-1">Usuário</label>
-                <input type="text" name="usuario" required placeholder="ex: tecnico.teste"
+                <input type="text" name="usuario" value="<?= htmlspecialchars($usuario) ?>" required placeholder="ex: tecnico.teste"
+                       autocomplete="username" autocapitalize="none" spellcheck="false"
                        class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-vivo-purple text-sm bg-gray-50">
             </div>
 
             <div>
                 <label class="block text-xs font-bold text-vivo-dark uppercase tracking-wider mb-1">Senha</label>
                 <input type="password" name="senha" required placeholder="••••••••"
+                       autocomplete="current-password"
                        class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-vivo-purple text-sm bg-gray-50">
             </div>
 
