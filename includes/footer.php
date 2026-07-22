@@ -9,7 +9,7 @@
         <i data-lucide="list" class="w-5 h-5"></i>
         <span class="text-[9px] mt-1 font-medium">Triagem</span>
       </a>
-      <a href="/preventivas?status=execucao" class="flex flex-col items-center justify-center w-16 text-gray-400 hover:text-vivo-purple shrink-0">
+      <a href="/execucao" class="flex flex-col items-center justify-center w-16 text-gray-400 hover:text-vivo-purple shrink-0">
         <i data-lucide="play-circle" class="w-5 h-5"></i>
         <span class="text-[9px] mt-1 font-medium">Em Execução</span>
       </a>
