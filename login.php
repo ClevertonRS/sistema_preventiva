@@ -74,8 +74,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <i data-lucide="shield" class="w-8 h-8 text-vivo-purple"></i>
                 </div>
             </div>
-            <h1 class="text-3xl font-extrabold tracking-tight">vivo</h1>
-            <p class="text-purple-100 text-xs mt-1">Painel  Operacional PWA</p>
+            <h1 class="text-3xl font-extrabold tracking-tight">PREVENTIVA</h1>
+            <p class="text-purple-100 text-xs mt-1">Painel Operacional Técnico</p>
         </div> 
      
         <!-- Formulário --> 
@@ -113,7 +113,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </form>
 
         <div class="px-6 py-4 bg-gray-50 border-t border-vivo-grayBorder text-center">
-            <span class="text-xs text-gray-400">&copy; 2026 Operational Panel</span>
+            <span class="text-xs text-gray-400">&copy; 2026 Operacional CRS Panel</span>
         </div>
     </div>
 
