@@ -79,7 +79,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div> 
      
         <!-- Formulário --> 
-        <form method="POST" action="" class="p-6 space-y-4">
+        <form method="POST" action="" class="p-6 space-y-4" onsubmit="this.querySelector('button[type=submit]').disabled = true;">
 
             <?php if (!empty($erro)): ?>
                 <div class="p-3 rounded-lg bg-rose-50 border border-rose-200 text-rose-700 text-xs flex items-center space-x-2">

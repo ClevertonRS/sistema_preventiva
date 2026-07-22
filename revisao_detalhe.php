@@ -69,7 +69,7 @@ $supervisorDescricao = $p['descricao_supervisor'] ?? $p['observacao_supervisor']
         </p>
     </div>
 
-    <form action="/salvar-preventiva" method="POST" enctype="multipart/form-data" class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-4">
+    <form action="/salvar-preventiva" method="POST" enctype="multipart/form-data" onsubmit="this.querySelector('button[type=submit]').disabled = true;" class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-4">
         <input type="hidden" name="preventiva_id" value="<?= htmlspecialchars($p['id']) ?>">
         <input type="hidden" name="acao" value="finalizar">
         <input type="hidden" name="return_url" value="/revisao-detalhe/<?= htmlspecialchars($p['id']) ?>">
@@ -86,7 +86,7 @@ $supervisorDescricao = $p['descricao_supervisor'] ?? $p['observacao_supervisor']
             <div id="foto-preview" class="grid grid-cols-2 gap-3 mt-4"></div>
         </div>
 
-        <button type="submit" class="w-full bg-vivo-coral hover:bg-red-700 text-dark font-bold py-3.5 rounded-xl shadow-md transition-all text-sm uppercase tracking-wider">
+        <button type="submit" class="w-full bg-vivo-coral hover:bg-red-700 text-warning font-bold py-3.5 rounded-xl shadow-md transition-all text-sm uppercase tracking-wider">
             Reenviar para análise
         </button>
     </form>

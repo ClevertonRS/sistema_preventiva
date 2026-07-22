@@ -72,7 +72,7 @@ $arquivos = $stmtArquivos->fetchAll();
     <?php if ($p['status'] === 'Pendente'): ?>
         <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-4">
             <p class="text-sm text-gray-600">Esta preventiva ainda não foi aceita. Ao aceitar, ela passará para <strong>Em Execução</strong> e poderá ser finalizada.</p>
-            <form action="/salvar-preventiva" method="POST" class="space-y-4 confirm-aceitar">
+            <form action="/salvar-preventiva" method="POST" class="space-y-4 confirm-aceitar" onsubmit="this.querySelector('button[type=submit]').disabled = true;">
                 <input type="hidden" name="preventiva_id" value="<?= $p['id'] ?>">
                 <input type="hidden" name="acao" value="aceitar">
                 <button type="submit" class="w-full bg-vivo-purple hover:bg-vivo-purpleDark text-white font-bold py-3.5 rounded-xl shadow-md transition-all text-sm uppercase tracking-wider">
@@ -81,7 +81,7 @@ $arquivos = $stmtArquivos->fetchAll();
             </form>
         </div>
     <?php elseif ($p['status'] === 'Em Execução'): ?>
-        <form action="/salvar-preventiva" method="POST" enctype="multipart/form-data" class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-4">
+        <form action="/salvar-preventiva" method="POST" enctype="multipart/form-data" onsubmit="this.querySelector('button[type=submit]').disabled = true;" class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-4">
             <input type="hidden" name="preventiva_id" value="<?= $p['id'] ?>">
             <input type="hidden" name="acao" value="finalizar">
 
