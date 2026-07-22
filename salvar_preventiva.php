@@ -16,7 +16,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt = $pdo->prepare("UPDATE preventivas_rede SET status = 'Em Execução', enviado_execucao_em = NOW(), tecnico_id = :tecnico_id WHERE id = :id");
         $stmt->execute([':id' => $preventivaId, ':tecnico_id' => $_SESSION['user_id']]);
     } elseif ($acao === 'finalizar' && !empty($descricao)) {
-        $stmt = $pdo->prepare("UPDATE preventivas_rede SET observacao_abertura = :descricao, status = 'Em Análise', enviado_revisao_em = NOW() WHERE id = :id");
+        $stmt = $pdo->prepare("UPDATE preventivas_rede SET observacao_abertura = :descricao, status = 'Concluída', enviado_revisao_em = NOW() WHERE id = :id");
         $stmt->execute([
             ':descricao' => $descricao,
             ':id' => $preventivaId

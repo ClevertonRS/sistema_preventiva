@@ -38,7 +38,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Painel Vivo - Login</title>
+    <title>Painel Técnico - Login</title>
 
     <meta name="theme-color" content="#660099" />
     <script src="https://cdn.tailwindcss.com"></script>
@@ -113,7 +113,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </form>
 
         <div class="px-6 py-4 bg-gray-50 border-t border-vivo-grayBorder text-center">
-            <span class="text-xs text-gray-400">&copy; 2026 Vivo Operational Panel</span>
+            <span class="text-xs text-gray-400">&copy; 2026 Operational Panel</span>
         </div>
     </div>
 
