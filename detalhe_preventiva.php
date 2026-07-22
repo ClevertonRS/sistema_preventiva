@@ -32,7 +32,6 @@ $arquivos = $stmtArquivos->fetchAll();
       <h1 class="text-xl font-bold text-vivo-purple">OS #<?= str_pad($p['id'], 4, '0', STR_PAD_LEFT) ?></h1>
       <p class="text-sm text-gray-500 mt-1">Detalhes da preventiva</p>
     </div>
-    <a href="/preventivas" class="text-xs text-vivo-purple font-semibold">Voltar</a>
   </div>
 </div>
 

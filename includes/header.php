@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Painel Vivo - Home</title>
+    <title>Painel Preventiva - Home</title>
 
     <!-- PWA Meta Tags -->
     <meta name="theme-color" content="#660099" />
@@ -61,7 +61,7 @@
             <div class="text-white p-2 rounded-xl flex items-center justify-center shadow-md shadow-purple-200 bg-vivo-purple">
               <span class="font-black text-xl">V</span>
             </div>
-            <span class="text-xl font-extrabold tracking-tight text-vivo-purple">vivo</span>
+            <span class="text-xl font-extrabold tracking-tight text-vivo-purple">Gestão Prev</span>
           </div>
 
           <nav class="hidden md:flex space-x-1">
