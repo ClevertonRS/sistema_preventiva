@@ -13,11 +13,7 @@
         <i data-lucide="play-circle" class="w-5 h-5"></i>
         <span class="text-[9px] mt-1 font-medium">Em Execução</span>
       </a>
-      <a href="/preventivas?status=analise" class="flex flex-col items-center justify-center w-16 text-gray-400 hover:text-vivo-purple shrink-0">
-        <i data-lucide="search" class="w-5 h-5"></i>
-        <span class="text-[9px] mt-1 font-medium">Em Análise</span>
-      </a>
-      <a href="/preventivas?status=revisao" class="flex flex-col items-center justify-center w-16 text-gray-400 hover:text-vivo-purple shrink-0">
+      <a href="/revisao" class="flex flex-col items-center justify-center w-16 text-gray-400 hover:text-vivo-purple shrink-0">
         <i data-lucide="edit-3" class="w-5 h-5"></i>
         <span class="text-[9px] mt-1 font-medium">Revisão</span>
       </a>

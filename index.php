@@ -15,6 +15,12 @@ if (preg_match('#^/execucao-detalhe/([0-9]+)$#', $uri, $matches)) {
     return;
 }
 
+if (preg_match('#^/revisao-detalhe/([0-9]+)$#', $uri, $matches)) {
+    $_GET['id'] = $matches[1];
+    require __DIR__ . '/revisao_detalhe.php';
+    return;
+}
+
 switch ($uri) {
     case '/':
     case '/login':
@@ -41,8 +47,16 @@ switch ($uri) {
         require __DIR__ . '/execucao.php';
         break;
 
+    case '/revisao':
+        require __DIR__ . '/revisao.php';
+        break;
+
     case '/execucao-detalhe':
         require __DIR__ . '/execucao_detalhe.php';
+        break;
+
+    case '/revisao-detalhe':
+        require __DIR__ . '/revisao_detalhe.php';
         break;
 
     case '/salvar-preventiva':

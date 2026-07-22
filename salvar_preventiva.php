@@ -60,6 +60,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
+    $returnUrl = $_POST['return_url'] ?? '';
+    if (!empty($returnUrl) && strpos($returnUrl, '/') === 0) {
+        header('Location: ' . $returnUrl);
+        exit;
+    }
+
     header('Location: /preventiva/' . urlencode($preventivaId));
     exit;
 }
