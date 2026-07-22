@@ -12,7 +12,7 @@ $nomeUsuario = $_SESSION['user_nome'] ?? 'Operador';
 $inicialNome = strtoupper(substr($nomeUsuario, 0, 1));
 
 $statusCounts = [
-    'triagem' => 0,
+    'Triagem' => 0,
     'Em Execução' => 0,
     'Em Análise' => 0,
     'Revisão' => 0,
@@ -28,7 +28,7 @@ try {
     }
 
     $stmtTasks = $pdo->query(
-        "SELECT id, gpon, splitter, uf, localidade, status, prioridade, criado_em FROM preventivas_rede ORDER BY FIELD(status,'triagem','Em Execução','Em Análise','Revisão','Concluído'), criado_em DESC"
+        "SELECT id, gpon, splitter, uf, localidade, status, prioridade, criado_em FROM preventivas_rede ORDER BY FIELD(status,'Triagem','Em Execução','Em Análise','Revisão','Concluído'), criado_em DESC"
     );
     $tasks = $stmtTasks->fetchAll();
 } catch (PDOException $e) {
@@ -103,6 +103,7 @@ try {
           <!-- Navegação Desktop -->
           <nav class="hidden md:flex space-x-1">
             <a href="/dashboard" class="px-4 py-2 rounded-lg text-sm font-semibold bg-vivo-purple text-white shadow-sm transition-all">Início</a>
+            <a href="/triagem" class="px-4 py-2 rounded-lg text-sm font-medium text-gray-600 hover:text-vivo-purple hover:bg-vivo-purpleLight transition-all">Triagem</a>
             <a href="/preventivas?status=execucao" class="px-4 py-2 rounded-lg text-sm font-medium text-gray-600 hover:text-vivo-purple hover:bg-vivo-purpleLight transition-all">Em Andamento</a>
             <a href="/preventivas?status=analise" class="px-4 py-2 rounded-lg text-sm font-medium text-gray-600 hover:text-vivo-purple hover:bg-vivo-purpleLight transition-all">Em Análise</a>
             <a href="/preventivas?status=revisao" class="px-4 py-2 rounded-lg text-sm font-medium text-gray-600 hover:text-vivo-purple hover:bg-vivo-purpleLight transition-all">Revisão</a>
@@ -153,8 +154,8 @@ try {
         <div class="bg-white p-4 rounded-xl shadow-sm border border-vivo-grayBorder flex items-center space-x-3">
           <div class="p-3 bg-amber-50 text-amber-600 rounded-lg"><i data-lucide="clock" class="w-6 h-6"></i></div>
           <div>
-            <span class="text-xs text-gray-500 block font-medium">Pendente</span>
-            <span class="text-xl font-bold text-gray-800"><?= $statusCounts['triagem'] ?></span>
+            <span class="text-xs text-gray-500 block font-medium">Triagem</span>
+            <span class="text-xl font-bold text-gray-800"><?= $statusCounts['Triagem'] ?></span>
           </div>
         </div>
         <div class="bg-white p-4 rounded-xl shadow-sm border border-vivo-grayBorder flex items-center space-x-3">
@@ -243,14 +244,30 @@ try {
     </main>
 
     <!-- NAVEGAÇÃO MOBILE (PWA Bar) -->
-    <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-vivo-grayBorder shadow-lg z-50 flex justify-around items-center h-16 px-2">
-      <a href="/dashboard" class="flex flex-col items-center justify-center w-14 text-vivo-purple">
+    <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-vivo-grayBorder shadow-lg z-50 flex justify-between items-center h-16 px-1 overflow-x-auto">
+      <a href="/dashboard" class="flex flex-col items-center justify-center w-16 text-vivo-purple shrink-0">
         <i data-lucide="home" class="w-5 h-5"></i>
         <span class="text-[9px] mt-1 font-bold">Início</span>
       </a>
-      <a href="/logout" class="flex flex-col items-center justify-center w-14 text-gray-400 hover:text-vivo-purple">
-        <i data-lucide="log-out" class="w-5 h-5"></i>
-        <span class="text-[9px] mt-1 font-medium">Sair</span>
+      <a href="/triagem" class="flex flex-col items-center justify-center w-16 text-gray-400 hover:text-vivo-purple shrink-0">
+        <i data-lucide="list" class="w-5 h-5"></i>
+        <span class="text-[9px] mt-1 font-medium">Triagem</span>
+      </a>
+      <a href="/preventivas?status=execucao" class="flex flex-col items-center justify-center w-16 text-gray-400 hover:text-vivo-purple shrink-0">
+        <i data-lucide="play-circle" class="w-5 h-5"></i>
+        <span class="text-[9px] mt-1 font-medium">Em Andamento</span>
+      </a>
+      <a href="/preventivas?status=analise" class="flex flex-col items-center justify-center w-16 text-gray-400 hover:text-vivo-purple shrink-0">
+        <i data-lucide="search" class="w-5 h-5"></i>
+        <span class="text-[9px] mt-1 font-medium">Em Análise</span>
+      </a>
+      <a href="/preventivas?status=revisao" class="flex flex-col items-center justify-center w-16 text-gray-400 hover:text-vivo-purple shrink-0">
+        <i data-lucide="edit-3" class="w-5 h-5"></i>
+        <span class="text-[9px] mt-1 font-medium">Revisão</span>
+      </a>
+      <a href="/preventivas?status=concluido" class="flex flex-col items-center justify-center w-16 text-gray-400 hover:text-vivo-purple shrink-0">
+        <i data-lucide="check-circle" class="w-5 h-5"></i>
+        <span class="text-[9px] mt-1 font-medium">Executados</span>
       </a>
     </nav>
 

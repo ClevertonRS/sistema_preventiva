@@ -5,7 +5,7 @@ require_once __DIR__ . '/includes/header.php';
 
 $statusSlug = $_GET['status'] ?? '';
 $statusMap = [
-    'pendente' => 'Pendente',
+    'triagem' => 'Triagem',
     'execucao' => 'Em Execução',
     'analise' => 'Em Análise',
     'revisao' => 'Revisão',
@@ -22,7 +22,7 @@ if ($statusFilter) {
     $params[':status'] = $statusFilter;
 }
 
-$stmt = $pdo->prepare("SELECT id, titulo, gpon, splitter, uf, localidade, status, prioridade, criado_em FROM preventivas_rede $whereSql ORDER BY FIELD(status,'Pendente','Em Execução','Em Análise','Revisão','Concluído'), criado_em DESC");
+$stmt = $pdo->prepare("SELECT id, titulo, gpon, splitter, uf, localidade, status, prioridade, criado_em FROM preventivas_rede $whereSql ORDER BY FIELD(status,'Triagem','Em Execução','Em Análise','Revisão','Concluído'), criado_em DESC");
 $stmt->execute($params);
 $tasks = $stmt->fetchAll();
 ?>
@@ -35,7 +35,7 @@ $tasks = $stmt->fetchAll();
     </div>
     <div class="grid grid-cols-2 sm:grid-cols-5 gap-2">
       <a href="/preventivas" class="text-xs text-center px-3 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 transition">Todas</a>
-      <a href="/preventivas?status=pendente" class="text-xs text-center px-3 py-2 rounded-xl bg-amber-50 hover:bg-amber-100 transition">Pendente</a>
+      <a href="/preventivas?status=triagem" class="text-xs text-center px-3 py-2 rounded-xl bg-amber-50 hover:bg-amber-100 transition">Triagem</a>
       <a href="/preventivas?status=execucao" class="text-xs text-center px-3 py-2 rounded-xl bg-blue-50 hover:bg-blue-100 transition">Execução</a>
       <a href="/preventivas?status=analise" class="text-xs text-center px-3 py-2 rounded-xl bg-indigo-50 hover:bg-indigo-100 transition">Análise</a>
       <a href="/preventivas?status=revisao" class="text-xs text-center px-3 py-2 rounded-xl bg-violet-50 hover:bg-violet-100 transition">Revisão</a>
@@ -53,7 +53,7 @@ $tasks = $stmt->fetchAll();
       <?php
         $badgeClass = 'bg-gray-100 text-gray-700 border-gray-200';
         switch ($task['status']) {
-          case 'Pendente':
+          case 'Triagem':
             $badgeClass = 'bg-amber-50 text-amber-700 border-amber-200';
             break;
           case 'Em Execução':

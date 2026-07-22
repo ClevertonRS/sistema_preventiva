@@ -27,6 +27,10 @@ switch ($uri) {
         require __DIR__ . '/detalhe_preventiva.php';
         break;
 
+    case '/triagem':
+        require __DIR__ . '/triagem.php';
+        break;
+
     case '/salvar-preventiva':
         require __DIR__ . '/salvar_preventiva.php';
         break;

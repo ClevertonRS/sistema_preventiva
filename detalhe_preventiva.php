@@ -20,16 +20,21 @@ if (!$p) {
 }
 
 // 2. Busca as fotos/arquivos salvos na tabela preventivas_arquivos
-$stmtArquivos = $pdo->prepare("SELECT * FROM preventivas_arquivos WHERE preventiva_id = :id ORDER BY id DESC");
+$arquivos = '';
+$stmtArquivos = $pdo->prepare("SELECT caminho_arquivo FROM preventivas_arquivos WHERE preventiva_id = :id ORDER BY id DESC");
 $stmtArquivos->execute([':id' => $id]);
 $arquivos = $stmtArquivos->fetchAll();
 ?>
 
-<!-- Header -->
-<header class="bg-vivo-purple text-white p-4 shadow-md flex items-center gap-3 sticky top-0 z-10">
-    <a href="/preventivas" class="text-xl font-bold p-1">&larr;</a>
-    <h1 class="text-base font-bold">OS #<?= str_pad($p['id'], 4, '0', STR_PAD_LEFT) ?></h1>
-</header>
+<div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 mb-6">
+  <div class="flex items-center justify-between gap-4">
+    <div>
+      <h1 class="text-xl font-bold text-vivo-purple">OS #<?= str_pad($p['id'], 4, '0', STR_PAD_LEFT) ?></h1>
+      <p class="text-sm text-gray-500 mt-1">Detalhes da preventiva</p>
+    </div>
+    <a href="/preventivas" class="text-xs text-vivo-purple font-semibold">Voltar</a>
+  </div>
+</div>
 
 <main class="p-4 max-w-lg mx-auto w-full space-y-4 flex-grow">
 
@@ -51,10 +56,24 @@ $arquivos = $stmtArquivos->fetchAll();
         </div>
     </div>
 
+    <?php if (!empty($arquivos) and $p['status'] == "triagem"): ?>
+        <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-4">
+            <h3 class="text-xs font-bold text-vivo-dark uppercase tracking-wider">Fotos já enviadas</h3>
+            <div class="grid grid-cols-1 gap-3">
+                <?php foreach ($arquivos as $arq): ?>
+                    <div class="space-y-1 text-center">
+                        <img src="/<?= htmlspecialchars($arq['caminho_arquivo']) ?>" alt="Evidência" class="mx-auto block w-auto max-h-[300px] rounded-xl border border-gray-200 shadow-sm">
+                        <p class="text-[10px] text-gray-400 text-right">Enviado em: <?= date('d/m/Y H:i', strtotime($arq['criado_em'])) ?></p>
+                    </div>
+                <?php endforeach; ?> 
+            </div>
+        </div>
+    <?php endif; ?>
+
     <?php if ($p['status'] === 'Pendente'): ?>
         <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-4">
             <p class="text-sm text-gray-600">Esta preventiva ainda não foi aceita. Ao aceitar, ela passará para <strong>Em Execução</strong> e poderá ser finalizada.</p>
-            <form action="/salvar-preventiva" method="POST" class="space-y-4">
+            <form action="/salvar-preventiva" method="POST" class="space-y-4 confirm-aceitar">
                 <input type="hidden" name="preventiva_id" value="<?= $p['id'] ?>">
                 <input type="hidden" name="acao" value="aceitar">
                 <button type="submit" class="w-full bg-vivo-purple hover:bg-vivo-purpleDark text-white font-bold py-3.5 rounded-xl shadow-md transition-all text-sm uppercase tracking-wider">
@@ -74,14 +93,29 @@ $arquivos = $stmtArquivos->fetchAll();
 
             <div>
                 <label class="block text-xs font-bold text-vivo-dark uppercase tracking-wider mb-2">Fotos da Execução</label>
-                <input type="file" name="foto[]" accept="image/*" capture="environment" multiple class="w-full text-xs text-gray-500" />
-                <p class="text-[10px] text-gray-400 mt-2">Envie uma ou mais imagens do equipamento e do serviço finalizado.</p>
+                <input id="foto-input" type="file" name="foto[]" accept="image/*" capture="environment" multiple class="w-full text-xs text-gray-500" />
+                <p class="text-[10px] text-gray-400 mt-2">Envie uma ou mais imagens do equipamento e do serviço finalizado. Elas aparecerão aqui assim que forem selecionadas.</p>
+                <div id="foto-preview" class="grid grid-cols-2 gap-3 mt-4"></div>
             </div>
 
-            <button type="submit" class="w-full bg-vivo-coral hover:bg-red-700 text-white font-bold py-3.5 rounded-xl shadow-md transition-all text-sm uppercase tracking-wider">
+            <button type="submit" class="w-full bg-vivo-coral hover:bg-red-700 text-dark font-bold py-3.5 rounded-xl shadow-md transition-all text-sm uppercase tracking-wider">
                 Enviar para Análise
             </button>
         </form>
+
+        <?php if (!empty($arquivos)): ?>
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-4">
+                <h3 class="text-xs font-bold text-vivo-dark uppercase tracking-wider">Fotos já enviadas</h3>
+                <div class="grid grid-cols-1 gap-3">
+                    <?php foreach ($arquivos as $arq): ?>
+                        <div class="space-y-1">
+                            <img src="/<?= htmlspecialchars($arq['caminho_arquivo']) ?>" alt="Evidência" class="w-full h-auto rounded-xl border border-gray-200 shadow-sm">
+                            <p class="text-[10px] text-gray-400 text-right">Enviado em: <?= date('d/m/Y H:i', strtotime($arq['criado_em'])) ?></p>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+        <?php endif; ?>
     <?php else: ?>
         <!-- Exibição do Relatório Concluído + Imagens salvas -->
         <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-4">
@@ -100,8 +134,8 @@ $arquivos = $stmtArquivos->fetchAll();
                     <p class="text-xs font-semibold text-gray-400 mb-2">Evidências Registradas:</p>
                     <div class="grid grid-cols-1 gap-3">
                         <?php foreach ($arquivos as $arq): ?>
-                            <div class="space-y-1">
-                                <img src="/<?= htmlspecialchars($arq['caminho_arquivo']) ?>" alt="Evidência" class="w-full h-auto rounded-xl border border-gray-200 shadow-sm">
+                            <div class="space-y-1 text-center">
+                                <img src="/<?= htmlspecialchars($arq['caminho_arquivo']) ?>" alt="Evidência" class="mx-auto block w-auto max-h-[300px] rounded-xl border border-gray-200 shadow-sm">
                                 <p class="text-[10px] text-gray-400 text-right">Enviado em: <?= date('d/m/Y H:i', strtotime($arq['criado_em'])) ?></p>
                             </div>
                         <?php endforeach; ?>
@@ -112,5 +146,72 @@ $arquivos = $stmtArquivos->fetchAll();
     <?php endif; ?>
 
 </main>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const fotoInput = document.getElementById('foto-input');
+    const preview = document.getElementById('foto-preview');
+    let selectedFiles = [];
+
+    const updateInputFiles = () => {
+      const dataTransfer = new DataTransfer();
+      selectedFiles.forEach((file) => dataTransfer.items.add(file));
+      fotoInput.files = dataTransfer.files;
+    };
+
+    const renderPreview = () => {
+      preview.innerHTML = '';
+
+      if (selectedFiles.length === 0) {
+        return;
+      }
+
+      selectedFiles.forEach((file, index) => {
+        const card = document.createElement('div');
+        card.className = 'relative rounded-xl overflow-hidden border border-gray-200 shadow-sm bg-white';
+
+        const image = document.createElement('img');
+        image.src = URL.createObjectURL(file);
+        image.alt = file.name;
+        image.className = 'w-full h-32 object-cover';
+
+        const deleteButton = document.createElement('button');
+        deleteButton.type = 'button';
+        deleteButton.className = 'absolute top-2 right-2 bg-white/90 text-red-600 rounded-full p-1 border border-red-100 hover:bg-white';
+        deleteButton.innerHTML = '<span class="text-xs font-bold">×</span>';
+        deleteButton.addEventListener('click', function () {
+          selectedFiles.splice(index, 1);
+          updateInputFiles();
+          renderPreview();
+        });
+
+        const info = document.createElement('div');
+        info.className = 'p-2';
+        info.innerHTML = `<p class="text-[11px] text-gray-500 truncate">${file.name}</p>`;
+
+        card.appendChild(image);
+        card.appendChild(deleteButton);
+        card.appendChild(info);
+        preview.appendChild(card);
+      });
+    };
+
+    fotoInput.addEventListener('change', function (event) {
+      const files = Array.from(event.target.files || []);
+
+      files.forEach((file) => {
+        const exists = selectedFiles.some(
+          (current) => current.name === file.name && current.size === file.size && current.lastModified === file.lastModified
+        );
+        if (!exists) {
+          selectedFiles.push(file);
+        }
+      });
+
+      updateInputFiles();
+      renderPreview();
+    });
+  });
+</script>
 
 <?php require_once __DIR__ . '/includes/footer.php'; ?>

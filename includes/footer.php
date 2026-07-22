@@ -5,17 +5,17 @@
         <i data-lucide="home" class="w-5 h-5"></i>
         <span class="text-[9px] mt-1 font-bold">Início</span>
       </a>
-      <a href="/preventivas?status=pendente" class="flex flex-col items-center justify-center w-16 text-gray-400 hover:text-vivo-purple shrink-0">
-        <i data-lucide="clock" class="w-5 h-5"></i>
-        <span class="text-[9px] mt-1 font-medium">Pendente</span>
+      <a href="/triagem" class="flex flex-col items-center justify-center w-16 text-gray-400 hover:text-vivo-purple shrink-0">
+        <i data-lucide="list" class="w-5 h-5"></i>
+        <span class="text-[9px] mt-1 font-medium">Triagem</span>
       </a>
       <a href="/preventivas?status=execucao" class="flex flex-col items-center justify-center w-16 text-gray-400 hover:text-vivo-purple shrink-0">
         <i data-lucide="play-circle" class="w-5 h-5"></i>
-        <span class="text-[9px] mt-1 font-medium">Execução</span>
+        <span class="text-[9px] mt-1 font-medium">Em Execução</span>
       </a>
       <a href="/preventivas?status=analise" class="flex flex-col items-center justify-center w-16 text-gray-400 hover:text-vivo-purple shrink-0">
         <i data-lucide="search" class="w-5 h-5"></i>
-        <span class="text-[9px] mt-1 font-medium">Análise</span>
+        <span class="text-[9px] mt-1 font-medium">Em Análise</span>
       </a>
       <a href="/preventivas?status=revisao" class="flex flex-col items-center justify-center w-16 text-gray-400 hover:text-vivo-purple shrink-0">
         <i data-lucide="edit-3" class="w-5 h-5"></i>
@@ -38,6 +38,7 @@
       </div>
     </footer>
 
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
       lucide.createIcons();
 
@@ -64,6 +65,29 @@
           installBtn.classList.add('hidden');
         });
       }
+
+      // Intercepta submissões de formulários com a classe .confirm-aceitar
+      document.addEventListener('submit', function (e) {
+        const form = e.target;
+        if (!form || !form.classList || !form.classList.contains('confirm-aceitar')) return;
+        e.preventDefault();
+        const idInput = form.querySelector('input[name="preventiva_id"]');
+        const id = idInput ? idInput.value : '';
+
+        Swal.fire({
+          title: `Atender preventiva #${id}`,
+          text: 'Deseja registrar que você irá atender esta preventiva agora?',
+          icon: 'question',
+          showCancelButton: true,
+          confirmButtonText: 'Sim, atender',
+          cancelButtonText: 'Cancelar',
+          reverseButtons: true
+        }).then((result) => {
+          if (result.isConfirmed) {
+            form.submit();
+          }
+        });
+      });
     </script>
   </body>
 </html>

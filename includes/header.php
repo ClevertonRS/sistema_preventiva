@@ -66,7 +66,8 @@
 
           <nav class="hidden md:flex space-x-1">
             <a href="/dashboard" class="px-4 py-2 rounded-lg text-sm font-semibold bg-vivo-purple text-white shadow-sm transition-all">Início</a>
-            <a href="/preventivas?status=pendente" class="px-4 py-2 rounded-lg text-sm font-medium text-gray-600 hover:text-vivo-purple hover:bg-vivo-purpleLight transition-all">Em Andamento</a>
+            <a href="/triagem" class="px-4 py-2 rounded-lg text-sm font-medium text-gray-600 hover:text-vivo-purple hover:bg-vivo-purpleLight transition-all">Triagem</a>
+            <a href="/preventivas?status=execucao" class="px-4 py-2 rounded-lg text-sm font-medium text-gray-600 hover:text-vivo-purple hover:bg-vivo-purpleLight transition-all">Em Execução</a>
             <a href="/preventivas?status=analise" class="px-4 py-2 rounded-lg text-sm font-medium text-gray-600 hover:text-vivo-purple hover:bg-vivo-purpleLight transition-all">Em Análise</a>
             <a href="/preventivas?status=revisao" class="px-4 py-2 rounded-lg text-sm font-medium text-gray-600 hover:text-vivo-purple hover:bg-vivo-purpleLight transition-all">Revisão</a>
             <a href="/preventivas?status=concluido" class="px-4 py-2 rounded-lg text-sm font-medium text-gray-600 hover:text-vivo-purple hover:bg-vivo-purpleLight transition-all">Executados</a>
