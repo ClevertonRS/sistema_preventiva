@@ -16,7 +16,7 @@ $statusCounts = [
     'Em Execução' => 0,
     'Em Análise' => 0,
     'Revisão' => 0,
-    'Concluído' => 0,
+    'Concluída' => 0,
 ];
 
 try {
@@ -28,7 +28,7 @@ try {
     }
 
     $stmtTasks = $pdo->query(
-        "SELECT id, gpon, splitter, uf, localidade, status, prioridade, criado_em FROM preventivas_rede ORDER BY FIELD(status,'Triagem','Em Execução','Em Análise','Revisão','Concluído'), criado_em DESC"
+        "SELECT id, gpon, splitter, uf, localidade, status, prioridade, criado_em FROM preventivas_rede ORDER BY FIELD(status,'triagem','Em Execução','Em Análise','Revisão','Concluída'), criado_em DESC"
     );
     $tasks = $stmtTasks->fetchAll();
 } catch (PDOException $e) {
@@ -211,7 +211,7 @@ try {
                     case 'Revisão':
                       $badgeClass = 'bg-violet-50 text-violet-700 border-violet-200';
                       break;
-                    case 'Concluído':
+                    case 'Concluída':
                       $badgeClass = 'bg-emerald-50 text-emerald-700 border-emerald-200';
                       break;
                   }
@@ -244,39 +244,9 @@ try {
     </main>
 
     <!-- NAVEGAÇÃO MOBILE (PWA Bar) -->
-    <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-vivo-grayBorder shadow-lg z-50 flex justify-between items-center h-16 px-1 overflow-x-auto">
-      <a href="/dashboard" class="flex flex-col items-center justify-center w-16 text-vivo-purple shrink-0">
-        <i data-lucide="home" class="w-5 h-5"></i>
-        <span class="text-[9px] mt-1 font-bold">Início</span>
-      </a>
-      <a href="/triagem" class="flex flex-col items-center justify-center w-16 text-gray-400 hover:text-vivo-purple shrink-0">
-        <i data-lucide="list" class="w-5 h-5"></i>
-        <span class="text-[9px] mt-1 font-medium">Triagem</span>
-      </a>
-      <a href="/preventivas?status=execucao" class="flex flex-col items-center justify-center w-16 text-gray-400 hover:text-vivo-purple shrink-0">
-        <i data-lucide="play-circle" class="w-5 h-5"></i>
-        <span class="text-[9px] mt-1 font-medium">Em Andamento</span>
-      </a>
-      <a href="/preventivas?status=analise" class="flex flex-col items-center justify-center w-16 text-gray-400 hover:text-vivo-purple shrink-0">
-        <i data-lucide="search" class="w-5 h-5"></i>
-        <span class="text-[9px] mt-1 font-medium">Em Análise</span>
-      </a>
-      <a href="/preventivas?status=revisao" class="flex flex-col items-center justify-center w-16 text-gray-400 hover:text-vivo-purple shrink-0">
-        <i data-lucide="edit-3" class="w-5 h-5"></i>
-        <span class="text-[9px] mt-1 font-medium">Revisão</span>
-      </a>
-      <a href="/preventivas?status=concluido" class="flex flex-col items-center justify-center w-16 text-gray-400 hover:text-vivo-purple shrink-0">
-        <i data-lucide="check-circle" class="w-5 h-5"></i>
-        <span class="text-[9px] mt-1 font-medium">Executados</span>
-      </a>
-    </nav>
+    <?php require_once __DIR__ . '/includes/footer.php'; ?>
 
-    <!-- FOOTER DESKTOP -->
-    <footer class="hidden md:block bg-white border-t border-vivo-grayBorder py-6 mt-12">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-xs text-gray-400">
-        &copy; 2026 Vivo Painel Operacional PWA.
-      </div>
-    </footer>
+    
 
     <script>
       lucide.createIcons();

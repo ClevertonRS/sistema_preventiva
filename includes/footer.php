@@ -17,7 +17,7 @@
         <i data-lucide="edit-3" class="w-5 h-5"></i>
         <span class="text-[9px] mt-1 font-medium">Revisão</span>
       </a>
-      <a href="/preventivas?status=concluido" class="flex flex-col items-center justify-center w-16 text-gray-400 hover:text-vivo-purple shrink-0">
+      <a href="/concluidas" class="flex flex-col items-center justify-center w-16 text-gray-400 hover:text-vivo-purple shrink-0">
         <i data-lucide="check-circle" class="w-5 h-5"></i>
         <span class="text-[9px] mt-1 font-medium">Concluído</span>
       </a>

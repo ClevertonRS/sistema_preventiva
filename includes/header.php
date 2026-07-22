@@ -69,14 +69,14 @@
             <a href="/triagem" class="px-4 py-2 rounded-lg text-sm font-medium text-gray-600 hover:text-vivo-purple hover:bg-vivo-purpleLight transition-all">Triagem</a>
             <a href="/execucao" class="px-4 py-2 rounded-lg text-sm font-medium text-gray-600 hover:text-vivo-purple hover:bg-vivo-purpleLight transition-all">Em Execução</a>
             <a href="/revisao" class="px-4 py-2 rounded-lg text-sm font-medium text-gray-600 hover:text-vivo-purple hover:bg-vivo-purpleLight transition-all">Revisão</a>
-            <a href="/preventivas?status=concluido" class="px-4 py-2 rounded-lg text-sm font-medium text-gray-600 hover:text-vivo-purple hover:bg-vivo-purpleLight transition-all">Concluído</a>
+            <a href="/concluidas" class="px-4 py-2 rounded-lg text-sm font-medium text-gray-600 hover:text-vivo-purple hover:bg-vivo-purpleLight transition-all">Concluídos</a>
           </nav> 
 
           <div class="flex items-center space-x-3">
-            <button id="install-pwa" type="button" class="flex items-center gap-2 bg-vivo-accent hover:bg-pink-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold shadow-md transition-all">
+            <!-- <button id="install-pwa" type="button" class="flex items-center gap-2 bg-vivo-accent hover:bg-pink-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold shadow-md transition-all">
               <i data-lucide="download" class="w-3.5 h-3.5"></i>
               <span>Baixar App</span>
-            </button>
+            </button> -->
             <a href="/logout" class="w-9 h-9 rounded-full bg-vivo-purple text-white flex items-center justify-center font-bold text-sm border-2 border-vivo-purpleLight">C</a>
           </div>
         </div>
