@@ -26,11 +26,6 @@ try {
             $statusCounts[$row['status']] = $row['total'];
         }
     }
-
-    $stmtTasks = $pdo->query(
-        "SELECT id, gpon, splitter, uf, localidade, status, prioridade, criado_em FROM preventivas_rede ORDER BY FIELD(status,'triagem','Em Execução','Em Análise','Revisão','Concluída'), criado_em DESC"
-    );
-    $tasks = $stmtTasks->fetchAll();
 } catch (PDOException $e) {
     $tasks = [];
 }
@@ -177,67 +172,6 @@ try {
           <div>
             <span class="text-xs text-gray-500 block font-medium">Revisão</span>
             <span class="text-xl font-bold text-gray-800"><?= $statusCounts['Revisão'] ?></span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Lista de Fluxos -->
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div class="lg:col-span-2 space-y-4">
-          <div class="flex items-center justify-between">
-            <h2 class="text-lg font-bold text-vivo-purple flex items-center space-x-2">
-              <i data-lucide="kanban" class="w-5 h-5 text-vivo-purple"></i>
-              <span>Acompanhamento Recente</span>
-            </h2>
-          </div>
-
-          <div class="bg-white rounded-xl shadow-sm border border-vivo-grayBorder divide-y divide-gray-100">
-            <?php if (empty($tasks)): ?>
-              <div class="p-4 text-center text-sm text-gray-500">Nenhuma preventiva encontrada.</div>
-            <?php else: ?>
-              <?php foreach ($tasks as $task): ?>
-                <?php
-                  $badgeClass = 'bg-gray-100 text-gray-700 border-gray-200';
-                  switch ($task['status']) {
-                    case 'Pendente':
-                      $badgeClass = 'bg-amber-50 text-amber-700 border-amber-200';
-                      break;
-                    case 'Em Execução':
-                      $badgeClass = 'bg-blue-50 text-blue-700 border-blue-200';
-                      break;
-                    case 'Em Análise':
-                      $badgeClass = 'bg-indigo-50 text-indigo-700 border-indigo-200';
-                      break;
-                    case 'Revisão':
-                      $badgeClass = 'bg-violet-50 text-violet-700 border-violet-200';
-                      break;
-                    case 'Concluída':
-                      $badgeClass = 'bg-emerald-50 text-emerald-700 border-emerald-200';
-                      break;
-                  }
-                ?>
-                <div class="p-4 hover:bg-gray-50 transition-colors flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
-                  <div class="space-y-2">
-                    <div class="flex flex-wrap items-center gap-2">
-                      <span class="text-sm font-bold text-gray-800"><?= htmlspecialchars($task['titulo']) ?></span>
-                      <span class="text-[10px] uppercase tracking-[0.2em] px-2 py-1 rounded-full border <?= $badgeClass ?>"><?= htmlspecialchars($task['status']) ?></span>
-                    </div>
-                    <p class="text-xs text-gray-500">ID: #<?= htmlspecialchars($task['id']) ?> • <?= htmlspecialchars($task['gpon']) ?> / <?= htmlspecialchars($task['splitter']) ?> • <?= htmlspecialchars($task['localidade']) ?></p>
-                  </div>
-                  <a href="/preventiva/<?= htmlspecialchars($task['id']) ?>" class="text-xs uppercase font-bold text-vivo-purple hover:text-vivo-purpleDark">Ver detalhes</a>
-                </div>
-              <?php endforeach; ?>
-            <?php endif; ?>
-          </div>
-        </div>
-
-        <!-- Sidebar / Informações -->
-        <div class="space-y-6">
-          <div class="bg-white p-5 rounded-xl shadow-sm border border-vivo-grayBorder">
-            <h3 class="text-sm font-bold text-gray-800">A Vivo</h3>
-            <p class="text-xs text-gray-500 mt-2 leading-relaxed">
-              A Vivo busca constantemente a digitalização das empresas brasileiras com tecnologia robusta e análise inteligente de dados.
-            </p>
           </div>
         </div>
       </div>
