@@ -97,7 +97,7 @@ try {
             <div class="bg-vivo-purple text-white p-2 rounded-xl flex items-center justify-center shadow-md shadow-purple-200">
               <i data-lucide="activity" class="w-5 h-5"></i>
             </div>
-            <span class="text-xl font-extrabold tracking-tight text-vivo-purple">vivo</span>
+            <span class="text-xl font-extrabold tracking-tight text-vivo-purple">Gestão Prev</span>
           </div>
 
           <!-- Navegação Desktop -->

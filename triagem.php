@@ -20,7 +20,6 @@ try {
       <p class="text-sm text-gray-500 mt-1">Preventivas com status <strong>Triagem</strong></p>
     </div>
     <div>
-      <a href="/preventivas" class="text-xs text-center px-3 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 transition">Voltar</a>
     </div>
   </div>
 </div>
