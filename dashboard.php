@@ -54,6 +54,7 @@ try {
     <link rel="manifest" href="assets/icons/manifest.json" />
 
     <!-- Tailwind CSS -->
+
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
       tailwind.config = {
@@ -78,6 +79,28 @@ try {
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
 
+    <script>
+      // Função para ocultar o botão e o feedback
+function ocultarBotaoInstalacao() {
+  const botao = document.getElementById('install-pwa');
+  const feedback = document.getElementById('install-feedback');
+  
+  if (botao) botao.classList.add('hidden');
+  if (feedback) feedback.classList.add('hidden');
+}
+
+// 1. Verifica se o PWA JÁ ESTÁ aberto como aplicativo instalado
+if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true) {
+  ocultarBotaoInstalacao();
+}
+
+// 2. Oculta o botão IMEDIATAMENTE após o usuário concluir a instalação
+window.addEventListener('appinstalled', (event) => {
+  ocultarBotaoInstalacao();
+  console.log('PWA instalado com sucesso!');
+});
+
+    </script>
     <style>
       ::-webkit-scrollbar { width: 6px; height: 6px; }
       ::-webkit-scrollbar-track { background: #f1f1f1; }
