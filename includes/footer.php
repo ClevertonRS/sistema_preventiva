@@ -109,7 +109,7 @@
             text: 'Confirma o envio do relatório para análise do supervisor?',
             icon: 'warning',
             confirmText: 'Sim, finalizar',
-            confirmColor: '#dc2626'
+            confirmColor: '#660099'
           });
           return;
         }

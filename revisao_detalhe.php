@@ -102,7 +102,7 @@ $supervisorDescricao = $p['descricao_supervisor'] ?? $p['observacao_supervisor']
             <div id="foto-preview" class="grid grid-cols-2 gap-3 mt-4"></div>
         </div>
 
-        <button type="submit" class="w-full bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-bold py-4 rounded-xl shadow-lg shadow-red-200 hover:shadow-xl transition-all duration-300 text-sm uppercase tracking-wider flex items-center justify-center gap-2">
+        <button type="submit" class="w-full bg-gradient-to-r from-vivo-purple to-purple-700 hover:from-vivo-purpleDark hover:to-purple-900 text-white font-bold py-4 rounded-xl shadow-lg shadow-purple-200 hover:shadow-xl transition-all duration-300 text-sm uppercase tracking-wider flex items-center justify-center gap-2">
             <i data-lucide="refresh-cw" class="w-5 h-5"></i>
             Reenviar para análise
         </button>
