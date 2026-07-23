@@ -1,25 +1,39 @@
     </main>
 
+    <?php
+      $currentPath = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+      $currentBase = explode('/', trim($currentPath, '/'))[0] ?: 'dashboard';
+      $navMap = [
+        'dashboard' => 'dashboard', 'triagem' => 'triagem',
+        'execucao' => 'execucao', 'revisao' => 'revisao',
+        'concluidas' => 'concluidas',
+        'preventivas' => 'dashboard', 'preventiva' => 'dashboard',
+        'execucao-detalhe' => 'execucao',
+        'revisao-detalhe' => 'revisao',
+        'concluidas-detalhe' => 'concluidas',
+      ];
+      $currentBase = $navMap[$currentBase] ?? '';
+    ?>
     <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-vivo-grayBorder shadow-lg z-50 flex justify-between items-center h-16 px-1 overflow-x-auto">
-      <a href="/dashboard" class="flex flex-col items-center justify-center w-16 text-vivo-purple shrink-0">
+      <a href="/dashboard" class="flex flex-col items-center justify-center w-16 shrink-0 <?= $currentBase === 'dashboard' ? 'text-vivo-purple' : 'text-gray-400 hover:text-vivo-purple' ?>">
         <i data-lucide="home" class="w-5 h-5"></i>
-        <span class="text-[9px] mt-1 font-bold">Início</span>
+        <span class="text-[9px] mt-1 <?= $currentBase === 'dashboard' ? 'font-bold' : 'font-medium' ?>">Início</span>
       </a>
-      <a href="/triagem" class="flex flex-col items-center justify-center w-16 text-gray-400 hover:text-vivo-purple shrink-0">
+      <a href="/triagem" class="flex flex-col items-center justify-center w-16 shrink-0 <?= $currentBase === 'triagem' ? 'text-vivo-purple' : 'text-gray-400 hover:text-vivo-purple' ?>">
         <i data-lucide="list" class="w-5 h-5"></i>
-        <span class="text-[9px] mt-1 font-medium">Triagem</span>
+        <span class="text-[9px] mt-1 <?= $currentBase === 'triagem' ? 'font-bold' : 'font-medium' ?>">Triagem</span>
       </a>
-      <a href="/execucao" class="flex flex-col items-center justify-center w-16 text-gray-400 hover:text-vivo-purple shrink-0">
+      <a href="/execucao" class="flex flex-col items-center justify-center w-16 shrink-0 <?= $currentBase === 'execucao' ? 'text-vivo-purple' : 'text-gray-400 hover:text-vivo-purple' ?>">
         <i data-lucide="play-circle" class="w-5 h-5"></i>
-        <span class="text-[9px] mt-1 font-medium">Em Execução</span>
+        <span class="text-[9px] mt-1 <?= $currentBase === 'execucao' ? 'font-bold' : 'font-medium' ?>">Em Execução</span>
       </a>
-      <a href="/revisao" class="flex flex-col items-center justify-center w-16 text-gray-400 hover:text-vivo-purple shrink-0">
+      <a href="/revisao" class="flex flex-col items-center justify-center w-16 shrink-0 <?= $currentBase === 'revisao' ? 'text-vivo-purple' : 'text-gray-400 hover:text-vivo-purple' ?>">
         <i data-lucide="edit-3" class="w-5 h-5"></i>
-        <span class="text-[9px] mt-1 font-medium">Revisão</span>
+        <span class="text-[9px] mt-1 <?= $currentBase === 'revisao' ? 'font-bold' : 'font-medium' ?>">Revisão</span>
       </a>
-      <a href="/concluidas" class="flex flex-col items-center justify-center w-16 text-gray-400 hover:text-vivo-purple shrink-0">
+      <a href="/concluidas" class="flex flex-col items-center justify-center w-16 shrink-0 <?= $currentBase === 'concluidas' ? 'text-vivo-purple' : 'text-gray-400 hover:text-vivo-purple' ?>">
         <i data-lucide="check-circle" class="w-5 h-5"></i>
-        <span class="text-[9px] mt-1 font-medium">Concluído</span>
+        <span class="text-[9px] mt-1 <?= $currentBase === 'concluidas' ? 'font-bold' : 'font-medium' ?>">Concluído</span>
       </a>
     </nav>
 
