@@ -51,6 +51,13 @@ $arquivos = $stmtArquivos->fetchAll();
                 <p><strong class="text-gray-700">Splitter:</strong> <?= htmlspecialchars($p['splitter']) ?></p>
                 <p><strong class="text-gray-700">Localidade:</strong> <?= htmlspecialchars($p['localidade']) ?></p>
                 <p><strong class="text-gray-700">UF:</strong> <?= htmlspecialchars($p['uf']) ?></p>
+                <?php if (!empty($p['latitude']) && !empty($p['longitude'])): ?>
+                    <p><strong class="text-gray-700">Localização:</strong>
+                        <a href="https://www.google.com/maps?q=<?= $p['latitude'] ?>,<?= $p['longitude'] ?>" target="_blank" class="text-vivo-purple underline">
+                            <?= $p['latitude'] ?>, <?= $p['longitude'] ?>
+                        </a>
+                    </p>
+                <?php endif; ?>
             </div>
             <div class="bg-vivo-grayLight p-3 rounded-xl text-xs text-gray-500">
                 <p><strong class="text-gray-700">Prioridade:</strong> <?= htmlspecialchars($p['prioridade']) ?></p>

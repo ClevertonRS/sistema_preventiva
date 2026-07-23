@@ -62,27 +62,57 @@
         });
       }
 
-      // Intercepta submissões de formulários com a classe .confirm-aceitar
-      document.addEventListener('submit', function (e) {
-        const form = e.target;
-        if (!form || !form.classList || !form.classList.contains('confirm-aceitar')) return;
-        e.preventDefault();
+      function confirmSubmit(form, config) {
         const idInput = form.querySelector('input[name="preventiva_id"]');
         const id = idInput ? idInput.value : '';
 
         Swal.fire({
-          title: `Atender preventiva #${id}`,
-          text: 'Deseja registrar que você irá atender esta preventiva agora?',
-          icon: 'question',
+          title: config.title || 'Confirmar',
+          text: config.text || 'Deseja continuar?',
+          icon: config.icon || 'question',
           showCancelButton: true,
-          confirmButtonText: 'Sim, atender',
+          confirmButtonText: config.confirmText || 'Confirmar',
           cancelButtonText: 'Cancelar',
-          reverseButtons: true
+          reverseButtons: true,
+          confirmButtonColor: config.confirmColor || '#660099'
         }).then((result) => {
           if (result.isConfirmed) {
             form.submit();
           }
         });
+      }
+
+      document.addEventListener('submit', function (e) {
+        const form = e.target;
+        if (!form || !form.classList) return;
+
+        if (form.classList.contains('confirm-aceitar')) {
+          e.preventDefault();
+          const idInput = form.querySelector('input[name="preventiva_id"]');
+          const id = idInput ? idInput.value : '';
+          confirmSubmit(form, {
+            title: `Atender preventiva #${id}`,
+            text: 'Deseja registrar que você irá atender esta preventiva agora?',
+            icon: 'question',
+            confirmText: 'Sim, atender',
+            confirmColor: '#660099'
+          });
+          return;
+        }
+
+        if (form.classList.contains('confirm-finalizar')) {
+          e.preventDefault();
+          const idInput = form.querySelector('input[name="preventiva_id"]');
+          const id = idInput ? idInput.value : '';
+          confirmSubmit(form, {
+            title: `Finalizar OS #${id}`,
+            text: 'Confirma o envio do relatório para análise do supervisor?',
+            icon: 'warning',
+            confirmText: 'Sim, finalizar',
+            confirmColor: '#dc2626'
+          });
+          return;
+        }
       });
     </script>
   </body>

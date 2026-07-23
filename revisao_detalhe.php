@@ -53,6 +53,13 @@ $supervisorDescricao = $p['descricao_supervisor'] ?? $p['observacao_supervisor']
                 <p><strong class="text-gray-700">Splitter:</strong> <?= htmlspecialchars($p['splitter']) ?></p>
                 <p><strong class="text-gray-700">Localidade:</strong> <?= htmlspecialchars($p['localidade']) ?></p>
                 <p><strong class="text-gray-700">UF:</strong> <?= htmlspecialchars($p['uf']) ?></p>
+                <?php if (!empty($p['latitude']) && !empty($p['longitude'])): ?>
+                    <p><strong class="text-gray-700">Localização:</strong>
+                        <a href="https://www.google.com/maps?q=<?= $p['latitude'] ?>,<?= $p['longitude'] ?>" target="_blank" class="text-vivo-purple underline">
+                            <?= $p['latitude'] ?>, <?= $p['longitude'] ?>
+                        </a>
+                    </p>
+                <?php endif; ?>
             </div>
             <div class="bg-vivo-grayLight p-3 rounded-xl text-xs text-gray-500">
                 <p><strong class="text-gray-700">Prioridade:</strong> <?= htmlspecialchars($p['prioridade']) ?></p>
@@ -69,10 +76,19 @@ $supervisorDescricao = $p['descricao_supervisor'] ?? $p['observacao_supervisor']
         </p>
     </div>
 
-    <form action="/salvar-preventiva" method="POST" enctype="multipart/form-data" onsubmit="this.querySelector('button[type=submit]').disabled = true;" class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-4">
+    <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-2">
+        <h3 class="text-xs font-bold text-vivo-dark uppercase tracking-wider">Sua Localização</h3>
+        <p class="text-xs text-gray-500 bg-gray-50 p-3 rounded-xl border border-gray-100">
+            <span id="location-text">Obtendo localização...</span>
+        </p>
+    </div>
+
+    <form action="/salvar-preventiva" method="POST" enctype="multipart/form-data" class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-4 confirm-finalizar">
         <input type="hidden" name="preventiva_id" value="<?= htmlspecialchars($p['id']) ?>">
         <input type="hidden" name="acao" value="finalizar">
         <input type="hidden" name="return_url" value="/revisao-detalhe/<?= htmlspecialchars($p['id']) ?>">
+        <input type="hidden" name="latitude" id="latitude" value="">
+        <input type="hidden" name="longitude" id="longitude" value="">
 
         <div>
             <label class="block text-xs font-bold text-vivo-dark uppercase tracking-wider mb-2">Descrição da revisão</label>
@@ -86,7 +102,8 @@ $supervisorDescricao = $p['descricao_supervisor'] ?? $p['observacao_supervisor']
             <div id="foto-preview" class="grid grid-cols-2 gap-3 mt-4"></div>
         </div>
 
-        <button type="submit" class="w-full bg-vivo-coral hover:bg-red-700 text-warning font-bold py-3.5 rounded-xl shadow-md transition-all text-sm uppercase tracking-wider">
+        <button type="submit" class="w-full bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-bold py-4 rounded-xl shadow-lg shadow-red-200 hover:shadow-xl transition-all duration-300 text-sm uppercase tracking-wider flex items-center justify-center gap-2">
+            <i data-lucide="refresh-cw" class="w-5 h-5"></i>
             Reenviar para análise
         </button>
     </form>
@@ -168,6 +185,44 @@ $supervisorDescricao = $p['descricao_supervisor'] ?? $p['observacao_supervisor']
       updateInputFiles();
       renderPreview();
     });
+
+    // Geolocalização
+    const latInput = document.getElementById('latitude');
+    const lngInput = document.getElementById('longitude');
+    const locationText = document.getElementById('location-text');
+
+    function updateLocationText(lat, lng) {
+      if (locationText) {
+        locationText.innerHTML = `📍 <strong>${lat}, ${lng}</strong>
+          <a href="https://www.google.com/maps?q=${lat},${lng}" target="_blank" class="text-vivo-purple underline ml-2">Abrir no Maps</a>`;
+      }
+    }
+
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        function (position) {
+          const lat = position.coords.latitude.toFixed(6);
+          const lng = position.coords.longitude.toFixed(6);
+          if (latInput) latInput.value = lat;
+          if (lngInput) lngInput.value = lng;
+          updateLocationText(lat, lng);
+        },
+        function (error) {
+          if (locationText) {
+            let msg = 'Erro ao obter localização';
+            if (error.code === 1) msg = 'Permissão de localização negada.';
+            else if (error.code === 2) msg = 'Localização indisponível.';
+            else if (error.code === 3) msg = 'Tempo de obtenção de localização esgotado.';
+            locationText.textContent = '⚠️ ' + msg + ' A localização não será registrada.';
+          }
+        },
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+      );
+    } else {
+      if (locationText) {
+        locationText.textContent = '⚠️ Geolocalização não suportada pelo navegador.';
+      }
+    }
   });
 </script>
 

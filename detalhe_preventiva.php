@@ -47,6 +47,20 @@ $arquivos = $stmtArquivos->fetchAll();
             <p><strong>UF:</strong> <?= htmlspecialchars($p['uf']) ?></p>
             <p><strong>Localidade:</strong> <?= htmlspecialchars($p['localidade']) ?></p>
             <p><strong>Prioridade:</strong> <?= htmlspecialchars($p['prioridade']) ?></p>
+            <?php if (!empty($p['latitude']) && !empty($p['longitude'])): ?>
+                <p><strong>Localização:</strong>
+                    <a href="https://www.google.com/maps?q=<?= $p['latitude'] ?>,<?= $p['longitude'] ?>" target="_blank" class="text-vivo-purple underline text-xs">
+                        <?= $p['latitude'] ?>, <?= $p['longitude'] ?>
+                    </a>
+                </p>
+                <div class="mt-2 rounded-xl overflow-hidden border border-gray-200 h-40">
+                    <iframe
+                        width="100%" height="100%" frameborder="0" style="border:0"
+                        referrerpolicy="no-referrer-when-downgrade"
+                        src="https://maps.google.com/maps?q=<?= $p['latitude'] ?>,<?= $p['longitude'] ?>&z=15&output=embed">
+                    </iframe>
+                </div>
+            <?php endif; ?>
             <p><strong>Status:</strong>
                 <span class="font-bold <?= $p['status'] === 'Pendente' ? 'text-amber-600' : 'text-emerald-600' ?>">
                     <?= htmlspecialchars($p['status']) ?>
@@ -72,18 +86,35 @@ $arquivos = $stmtArquivos->fetchAll();
     <?php if ($p['status'] === 'Pendente'): ?>
         <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-4">
             <p class="text-sm text-gray-600">Esta preventiva ainda não foi aceita. Ao aceitar, ela passará para <strong>Em Execução</strong> e poderá ser finalizada.</p>
-            <form action="/salvar-preventiva" method="POST" class="space-y-4 confirm-aceitar" onsubmit="this.querySelector('button[type=submit]').disabled = true;">
+
+            <div id="location-status" class="text-xs text-gray-500 bg-gray-50 p-3 rounded-xl border border-gray-100">
+                <span id="location-text">Obtendo localização...</span>
+            </div>
+
+            <form action="/salvar-preventiva" method="POST" class="space-y-4 confirm-aceitar">
                 <input type="hidden" name="preventiva_id" value="<?= $p['id'] ?>">
                 <input type="hidden" name="acao" value="aceitar">
-                <button type="submit" class="w-full bg-vivo-purple hover:bg-vivo-purpleDark text-white font-bold py-3.5 rounded-xl shadow-md transition-all text-sm uppercase tracking-wider">
+                <input type="hidden" name="latitude" id="latitude" value="">
+                <input type="hidden" name="longitude" id="longitude" value="">
+                <button type="submit" class="w-full bg-gradient-to-r from-vivo-purple to-purple-700 hover:from-vivo-purpleDark hover:to-purple-900 text-white font-bold py-4 rounded-xl shadow-lg shadow-purple-200 hover:shadow-xl transition-all duration-300 text-sm uppercase tracking-wider flex items-center justify-center gap-2">
+                    <i data-lucide="check-circle" class="w-5 h-5"></i>
                     Aceitar Preventiva
                 </button>
             </form>
         </div>
     <?php elseif ($p['status'] === 'Em Execução'): ?>
-        <form action="/salvar-preventiva" method="POST" enctype="multipart/form-data" onsubmit="this.querySelector('button[type=submit]').disabled = true;" class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-4">
+        <div id="location-status" class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-2">
+            <h3 class="text-xs font-bold text-vivo-dark uppercase tracking-wider">Sua Localização</h3>
+            <p class="text-xs text-gray-500 bg-gray-50 p-3 rounded-xl border border-gray-100">
+                <span id="location-text">Obtendo localização...</span>
+            </p>
+        </div>
+
+        <form action="/salvar-preventiva" method="POST" enctype="multipart/form-data" class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-4 confirm-finalizar">
             <input type="hidden" name="preventiva_id" value="<?= $p['id'] ?>">
             <input type="hidden" name="acao" value="finalizar">
+            <input type="hidden" name="latitude" id="latitude" value="">
+            <input type="hidden" name="longitude" id="longitude" value="">
 
             <div>
                 <label class="block text-xs font-bold text-vivo-dark uppercase tracking-wider mb-2">Descrição do Serviço</label>
@@ -97,7 +128,8 @@ $arquivos = $stmtArquivos->fetchAll();
                 <div id="foto-preview" class="grid grid-cols-2 gap-3 mt-4"></div>
             </div>
 
-            <button type="submit" class="w-full bg-vivo-coral hover:bg-red-700 text-dark font-bold py-3.5 rounded-xl shadow-md transition-all text-sm uppercase tracking-wider">
+            <button type="submit" class="w-full bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-bold py-4 rounded-xl shadow-lg shadow-red-200 hover:shadow-xl transition-all duration-300 text-sm uppercase tracking-wider flex items-center justify-center gap-2">
+                <i data-lucide="send" class="w-5 h-5"></i>
                 Enviar para Análise
             </button>
         </form>
@@ -210,6 +242,44 @@ $arquivos = $stmtArquivos->fetchAll();
       updateInputFiles();
       renderPreview();
     });
+
+    // Geolocalização
+    const latInput = document.getElementById('latitude');
+    const lngInput = document.getElementById('longitude');
+    const locationText = document.getElementById('location-text');
+
+    function updateLocationText(lat, lng) {
+      if (locationText) {
+        locationText.innerHTML = `📍 <strong>${lat}, ${lng}</strong>
+          <a href="https://www.google.com/maps?q=${lat},${lng}" target="_blank" class="text-vivo-purple underline ml-2">Abrir no Maps</a>`;
+      }
+    }
+
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        function (position) {
+          const lat = position.coords.latitude.toFixed(6);
+          const lng = position.coords.longitude.toFixed(6);
+          if (latInput) latInput.value = lat;
+          if (lngInput) lngInput.value = lng;
+          updateLocationText(lat, lng);
+        },
+        function (error) {
+          if (locationText) {
+            let msg = 'Erro ao obter localização';
+            if (error.code === 1) msg = 'Permissão de localização negada.';
+            else if (error.code === 2) msg = 'Localização indisponível.';
+            else if (error.code === 3) msg = 'Tempo de obtenção de localização esgotado.';
+            locationText.textContent = '⚠️ ' + msg + ' A localização não será registrada.';
+          }
+        },
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+      );
+    } else {
+      if (locationText) {
+        locationText.textContent = '⚠️ Geolocalização não suportada pelo navegador.';
+      }
+    }
   });
 </script>
 

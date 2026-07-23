@@ -111,45 +111,9 @@ window.addEventListener('appinstalled', (event) => {
 <body class="bg-vivo-grayLight text-vivo-textDark font-sans min-h-screen flex flex-col pb-16 md:pb-0">
 
     <!-- HEADER / NAVEGAÇÃO -->
-    <header class="bg-white border-b border-vivo-grayBorder sticky top-0 z-50 shadow-sm">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex items-center justify-between h-16">
-          
-          <!-- Logo Vivo -->
-          <div class="flex items-center space-x-3">
-            <div class="bg-vivo-purple text-white p-2 rounded-xl flex items-center justify-center shadow-md shadow-purple-200">
-              <i data-lucide="activity" class="w-5 h-5"></i>
-            </div>
-            <span class="text-xl font-extrabold tracking-tight text-vivo-purple">Gestão Prev</span>
-          </div>
-
-          <!-- Navegação Desktop -->
-          <nav class="hidden md:flex space-x-1">
-            <a href="/dashboard" class="px-4 py-2 rounded-lg text-sm font-semibold bg-vivo-purple text-white shadow-sm transition-all">Início</a>
-            <a href="/triagem" class="px-4 py-2 rounded-lg text-sm font-medium text-gray-600 hover:text-vivo-purple hover:bg-vivo-purpleLight transition-all">Triagem</a>
-            <a href="/preventivas?status=execucao" class="px-4 py-2 rounded-lg text-sm font-medium text-gray-600 hover:text-vivo-purple hover:bg-vivo-purpleLight transition-all">Em Andamento</a>
-            <a href="/preventivas?status=analise" class="px-4 py-2 rounded-lg text-sm font-medium text-gray-600 hover:text-vivo-purple hover:bg-vivo-purpleLight transition-all">Em Análise</a>
-            <a href="/preventivas?status=revisao" class="px-4 py-2 rounded-lg text-sm font-medium text-gray-600 hover:text-vivo-purple hover:bg-vivo-purpleLight transition-all">Revisão</a>
-            <a href="/preventivas?status=concluido" class="px-4 py-2 rounded-lg text-sm font-medium text-gray-600 hover:text-vivo-purple hover:bg-vivo-purpleLight transition-all">Executados</a>
-          </nav>
-
-          <!-- Perfil e Logout -->
-          <div class="flex items-center space-x-3">
-            <div class="flex flex-col items-end">
-              <button id="install-pwa" type="button" class="inline-flex items-center gap-2 bg-vivo-accent hover:bg-pink-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold shadow-md transition-all animate-pulse">
-                <i data-lucide="download" class="w-3.5 h-3.5"></i>
-                <span>Instalar App</span>
-              </button>
-              <p id="install-feedback" class="hidden mt-1 text-[10px] text-vivo-purple font-medium"></p>
-            </div>
-
-            <a href="logout.php" title="Sair do sistema" class="w-9 h-9 rounded-full bg-vivo-purple text-white flex items-center justify-center font-bold text-sm border-2 border-vivo-purpleLight hover:bg-vivo-purpleDark transition-all">
-              <?= htmlspecialchars($inicialNome) ?>
-            </a>
-          </div>
-        </div>
-      </div>
-    </header>
+    <?php
+      require_once __DIR__ . '/includes/header.php';
+    ?>
 
     <!-- CONTEÚDO PRINCIPAL -->
     <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">

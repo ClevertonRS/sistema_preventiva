@@ -6,6 +6,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $preventivaId = $_POST['preventiva_id'] ?? null;
     $acao = $_POST['acao'] ?? 'finalizar';
     $descricao = trim($_POST['descricao'] ?? '');
+    $latitude = $_POST['latitude'] ?? null;
+    $longitude = $_POST['longitude'] ?? null;
+
+    $locationSet = (!empty($latitude) && !empty($longitude)) ? ", latitude = :latitude, longitude = :longitude" : '';
 
     if (!$preventivaId) {
         header('Location: /preventivas');
@@ -13,14 +17,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if ($acao === 'aceitar') {
-        $stmt = $pdo->prepare("UPDATE preventivas_rede SET status = 'Em Execução', enviado_execucao_em = NOW(), tecnico_id = :tecnico_id WHERE id = :id");
-        $stmt->execute([':id' => $preventivaId, ':tecnico_id' => $_SESSION['user_id']]);
+        $sql = "UPDATE preventivas_rede SET status = 'Em Execução', enviado_execucao_em = NOW(), tecnico_id = :tecnico_id$locationSet WHERE id = :id";
+        $stmt = $pdo->prepare($sql);
+        $params = [':id' => $preventivaId, ':tecnico_id' => $_SESSION['user_id']];
+        if (!empty($latitude) && !empty($longitude)) {
+            $params[':latitude'] = $latitude;
+            $params[':longitude'] = $longitude;
+        }
+        $stmt->execute($params);
     } elseif ($acao === 'finalizar' && !empty($descricao)) {
-        $stmt = $pdo->prepare("UPDATE preventivas_rede SET observacao_abertura = :descricao, status = 'Concluída', enviado_revisao_em = NOW() WHERE id = :id");
-        $stmt->execute([
-            ':descricao' => $descricao,
-            ':id' => $preventivaId
-        ]);
+        $sql = "UPDATE preventivas_rede SET observacao_abertura = :descricao, status = 'Concluída', enviado_revisao_em = NOW()$locationSet WHERE id = :id";
+        $stmt = $pdo->prepare($sql);
+        $params = [':descricao' => $descricao, ':id' => $preventivaId];
+        if (!empty($latitude) && !empty($longitude)) {
+            $params[':latitude'] = $latitude;
+            $params[':longitude'] = $longitude;
+        }
+        $stmt->execute($params);
 
         if (!empty($_FILES['foto']) && is_array($_FILES['foto']['name'])) {
             $pastaUpload = __DIR__ . '/uploads/';
