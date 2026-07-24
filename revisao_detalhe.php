@@ -59,6 +59,10 @@ $supervisorDescricao = $p['descricao_supervisor'] ?? $p['observacao_supervisor']
                         <a href="https://www.google.com/maps?q=<?= $p['latitude'] ?>,<?= $p['longitude'] ?>" target="_blank" class="text-vivo-purple underline">
                             <?= $p['latitude'] ?>, <?= $p['longitude'] ?>
                         </a>
+                        <a href="https://www.google.com/maps?q=<?= $p['latitude'] ?>,<?= $p['longitude'] ?>" target="_blank" class="ml-3 inline-flex items-center px-3 py-1.5 text-xs font-semibold text-white bg-vivo-purple rounded-lg hover:bg-vivo-purpleDark transition">
+                            <i data-lucide="map-pin" class="w-3 h-3 mr-1"></i>
+                            Abrir no Mapa
+                        </a>
                     </p>
                 <?php endif; ?>
             </div>

@@ -70,14 +70,11 @@ $arquivos = $stmtArquivos->fetchAll();
                     <a href="https://www.google.com/maps?q=<?= $p['latitude'] ?>,<?= $p['longitude'] ?>" target="_blank" class="text-vivo-purple underline text-xs">
                         <?= $p['latitude'] ?>, <?= $p['longitude'] ?>
                     </a>
+                    <a href="https://www.google.com/maps?q=<?= $p['latitude'] ?>,<?= $p['longitude'] ?>" target="_blank" class="ml-3 inline-flex items-center px-3 py-1.5 text-xs font-semibold text-white bg-vivo-purple rounded-lg hover:bg-vivo-purpleDark transition">
+                        <i data-lucide="map-pin" class="w-3 h-3 mr-1"></i>
+                        Abrir no Mapa
+                    </a>
                 </p>
-                <div class="mt-2 rounded-xl overflow-hidden border border-gray-200 h-40">
-                    <iframe
-                        width="100%" height="100%" frameborder="0" style="border:0"
-                        referrerpolicy="no-referrer-when-downgrade"
-                        src="https://maps.google.com/maps?q=<?= $p['latitude'] ?>,<?= $p['longitude'] ?>&z=15&output=embed">
-                    </iframe>
-                </div>
             <?php endif; ?>
             <p><strong>Status:</strong>
                 <span class="font-bold <?= $p['status'] === 'Pendente' ? 'text-amber-600' : 'text-emerald-600' ?>">
@@ -101,26 +98,52 @@ $arquivos = $stmtArquivos->fetchAll();
         </div>
     <?php endif; ?>
 
-    <?php if ($p['status'] === 'Pendente'): ?>
-        <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-4">
-            <p class="text-sm text-gray-600">Esta preventiva ainda não foi aceita. Ao aceitar, ela passará para <strong>Em Execução</strong> e poderá ser finalizada.</p>
-
-            <div id="location-status" class="text-xs text-gray-500 bg-gray-50 p-3 rounded-xl border border-gray-100">
+    <?php if (in_array($p['status'], ['Pendente', 'Triagem'], true)): ?>
+        <div id="location-status" class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-2">
+            <h3 class="text-xs font-bold text-vivo-dark uppercase tracking-wider">Sua Localização</h3>
+            <p class="text-xs text-gray-500 bg-gray-50 p-3 rounded-xl border border-gray-100">
                 <span id="location-text">Obtendo localização...</span>
+            </p>
+        </div>
+
+        <form action="/salvar-preventiva" method="POST" enctype="multipart/form-data" class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-4 confirm-finalizar">
+            <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
+            <input type="hidden" name="preventiva_id" value="<?= $p['id'] ?>">
+            <input type="hidden" name="acao" value="aceitar_finalizar">
+            <input type="hidden" name="latitude" id="latitude" value="">
+            <input type="hidden" name="longitude" id="longitude" value="">
+
+            <div>
+                <label class="block text-xs font-bold text-vivo-dark uppercase tracking-wider mb-2">Descrição do Serviço</label>
+                <textarea name="descricao" rows="4" required placeholder="Escreva o que foi realizado..." class="w-full p-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-vivo-purple text-sm bg-gray-50"></textarea>
             </div>
 
-            <form action="/salvar-preventiva" method="POST" class="space-y-4 confirm-aceitar">
-                <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
-                <input type="hidden" name="preventiva_id" value="<?= $p['id'] ?>">
-                <input type="hidden" name="acao" value="aceitar">
-                <input type="hidden" name="latitude" id="latitude" value="">
-                <input type="hidden" name="longitude" id="longitude" value="">
-                <button type="submit" class="w-full bg-gradient-to-r from-vivo-purple to-purple-700 hover:from-vivo-purpleDark hover:to-purple-900 text-white font-bold py-4 rounded-xl shadow-lg shadow-purple-200 hover:shadow-xl transition-all duration-300 text-sm uppercase tracking-wider flex items-center justify-center gap-2">
-                    <i data-lucide="check-circle" class="w-5 h-5"></i>
-                    Aceitar Preventiva
-                </button>
-            </form>
-        </div>
+            <div>
+                <label class="block text-xs font-bold text-vivo-dark uppercase tracking-wider mb-2">Fotos da Execução</label>
+                <input id="foto-input" type="file" name="foto[]" accept="image/*" capture="environment" multiple class="w-full text-xs text-gray-500" />
+                <p class="text-[10px] text-gray-400 mt-2">Envie uma ou mais imagens do equipamento e do serviço finalizado. Use a câmera ou selecione da galeria.</p>
+                <div id="foto-preview" class="grid grid-cols-2 gap-3 mt-4"></div>
+            </div>
+
+            <button type="submit" class="w-full bg-gradient-to-r from-vivo-purple to-purple-700 hover:from-vivo-purpleDark hover:to-purple-900 text-white font-bold py-4 rounded-xl shadow-lg shadow-purple-200 hover:shadow-xl transition-all duration-300 text-sm uppercase tracking-wider flex items-center justify-center gap-2">
+                <i data-lucide="send" class="w-5 h-5"></i>
+                Aceitar e Finalizar
+            </button>
+        </form>
+
+        <?php if (!empty($arquivos)): ?>
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-4">
+                <h3 class="text-xs font-bold text-vivo-dark uppercase tracking-wider">Fotos já enviadas</h3>
+                <div class="grid grid-cols-1 gap-3">
+                    <?php foreach ($arquivos as $arq): ?>
+                        <div class="space-y-1">
+                            <img src="/<?= htmlspecialchars($arq['caminho_arquivo']) ?>" alt="Evidência" class="w-full h-auto rounded-xl border border-gray-200 shadow-sm">
+                            <p class="text-[10px] text-gray-400 text-right">Enviado em: <?= date('d/m/Y H:i', strtotime($arq['criado_em'])) ?></p>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+        <?php endif; ?>
     <?php elseif ($p['status'] === 'Em Execução'): ?>
         <div id="location-status" class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-2">
             <h3 class="text-xs font-bold text-vivo-dark uppercase tracking-wider">Sua Localização</h3>
@@ -150,7 +173,7 @@ $arquivos = $stmtArquivos->fetchAll();
 
             <button type="submit" class="w-full bg-gradient-to-r from-vivo-purple to-purple-700 hover:from-vivo-purpleDark hover:to-purple-900 text-white font-bold py-4 rounded-xl shadow-lg shadow-purple-200 hover:shadow-xl transition-all duration-300 text-sm uppercase tracking-wider flex items-center justify-center gap-2">
                 <i data-lucide="send" class="w-5 h-5"></i>
-                Enviar para Análise
+                Enviar
             </button>
         </form>
 

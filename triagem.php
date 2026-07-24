@@ -40,15 +40,8 @@ try {
         </div>
 
         <div class="flex flex-col items-end gap-2">
-          <!-- <a href="/preventiva/<?= htmlspecialchars($task['id']) ?>" class="text-xs text-vivo-purple font-semibold">Ver</a> -->
-
-          <form class="confirm-aceitar" action="/salvar-preventiva" method="POST">
-            <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
-            <input type="hidden" name="preventiva_id" value="<?= htmlspecialchars($task['id']) ?>">
-            <input type="hidden" name="acao" value="aceitar">
-            <button type="submit" class="bg-vivo-purple text-white px-3 py-2 rounded-lg text-sm font-bold">Atender</button>
-          </form>
-        </div>
+            <a href="/preventiva/<?= htmlspecialchars($task['id']) ?>" class="bg-vivo-purple text-white px-3 py-2 rounded-lg text-sm font-bold text-center">Detalhar</a>
+          </div>
       </div>
     <?php endforeach; ?>
   <?php endif; ?>

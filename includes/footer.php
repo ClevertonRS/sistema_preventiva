@@ -79,6 +79,8 @@
       function confirmSubmit(form, config) {
         const idInput = form.querySelector('input[name="preventiva_id"]');
         const id = idInput ? idInput.value : '';
+        const submitBtn = form.querySelector('button[type="submit"]');
+        const originalBtnHtml = submitBtn ? submitBtn.innerHTML : '';
 
         Swal.fire({
           title: config.title || 'Confirmar',
@@ -88,9 +90,31 @@
           confirmButtonText: config.confirmText || 'Confirmar',
           cancelButtonText: 'Cancelar',
           reverseButtons: true,
-          confirmButtonColor: config.confirmColor || '#660099'
+          confirmButtonColor: config.confirmColor || '#660099',
+          allowOutsideClick: false,
+          allowEscapeKey: false
         }).then((result) => {
           if (result.isConfirmed) {
+            // Loading state
+            if (submitBtn) {
+              submitBtn.disabled = true;
+              submitBtn.innerHTML = `
+                <div class="flex items-center justify-center gap-2">
+                  <div class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  <span>Enviando...</span>
+                </div>`;
+            }
+            // Barra de progresso simples
+            Swal.fire({
+              title: 'Processando...',
+              text: 'Aguarde enquanto salvamos os dados',
+              allowOutsideClick: false,
+              allowEscapeKey: false,
+              showConfirmButton: false,
+              didOpen: () => {
+                Swal.showLoading();
+              }
+            });
             form.submit();
           }
         });

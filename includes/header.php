@@ -7,9 +7,9 @@ if (!headers_sent()) {
     header('X-Frame-Options: DENY');
     header('X-XSS-Protection: 1; mode=block');
     header('Referrer-Policy: strict-origin-when-cross-origin');
-    header('Permissions-Policy: geolocation=(self), camera=(), microphone=()');
-    // CSP básico - ajuste conforme necessário
-    header("Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://unpkg.com; style-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https://maps.google.com https://www.google.com;");
+    header('Permissions-Policy: geolocation=(self), camera=(self), microphone=()');
+    // CSP ajustado para permitir CDNs necessários e blob: para preview de imagens
+    header("Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://unpkg.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com; img-src 'self' data: https: blob:; font-src 'self' data:; connect-src 'self' https://maps.google.com https://www.google.com https://unpkg.com;");
     if (isset($_SERVER['HTTPS'])) {
         header('Strict-Transport-Security: max-age=31536000; includeSubDomains');
     }
@@ -36,7 +36,7 @@ if (!headers_sent()) {
 
     <!-- PWA Meta Tags -->
     <meta name="theme-color" content="#660099" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta name="apple-mobile-web-app-title" content="Painel Vivo" />
 

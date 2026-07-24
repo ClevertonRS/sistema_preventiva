@@ -15,6 +15,7 @@ if (!headers_sent()) {
     if (isset($_SERVER['HTTPS'])) {
         header('Strict-Transport-Security: max-age=31536000; includeSubDomains');
     }
+    header("Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://unpkg.com; style-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com; img-src 'self' data: https: blob:; font-src 'self' data:; connect-src 'self';");
 }
 
 $erro = '';
