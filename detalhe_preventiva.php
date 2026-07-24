@@ -121,17 +121,20 @@ $arquivos = $stmtArquivos->fetchAll();
             <div>
                 <label class="block text-xs font-bold text-vivo-dark uppercase tracking-wider mb-2">Fotos da Execução</label>
                 <div class="flex gap-2 mb-2">
-                    <button type="button" id="btn-camera" class="flex-1 bg-vivo-purple text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center justify-center gap-1" onclick="document.getElementById('foto-input-camera').click()">
+                    <button type="button" id="btn-camera" class="flex-1 bg-vivo-purple text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center justify-center gap-1" onclick="openFileInput('camera')">
                         <i data-lucide="camera" class="w-4 h-4"></i>
                         Câmera
                     </button>
-                    <button type="button" id="btn-galeria" class="flex-1 bg-gray-200 text-gray-800 px-4 py-2 rounded-lg text-sm font-bold flex items-center justify-center gap-1" onclick="document.getElementById('foto-input-galeria').click()">
+                    <button type="button" id="btn-galeria" class="flex-1 bg-gray-200 text-gray-800 px-4 py-2 rounded-lg text-sm font-bold flex items-center justify-center gap-1" onclick="openFileInput('galeria')">
                         <i data-lucide="image" class="w-4 h-4"></i>
                         Galeria
                     </button>
                 </div>
-                <input type="file" id="foto-input-camera" name="foto[]" accept="image/*" capture="environment" multiple class="hidden" onchange="handleFiles(this)" />
-                <input type="file" id="foto-input-galeria" name="foto[]" accept="image/*" multiple class="hidden" onchange="handleFiles(this)" />
+                <!-- Inputs de origem (não submetem) -->
+                <input type="file" id="foto-input-camera" accept="image/*" capture="environment" multiple class="hidden" onchange="handleFiles(this)" />
+                <input type="file" id="foto-input-galeria" accept="image/*" multiple class="hidden" onchange="handleFiles(this)" />
+                <!-- Input único que será submetido -->
+                <input type="file" id="foto-input-submit" name="foto[]" multiple class="hidden" />
                 <p class="text-[10px] text-gray-400 mt-2">Envie uma ou mais imagens do equipamento e do serviço finalizado.</p>
                 <div id="foto-preview" class="grid grid-cols-2 gap-3 mt-4"></div>
             </div>
@@ -178,17 +181,18 @@ $arquivos = $stmtArquivos->fetchAll();
             <div>
                 <label class="block text-xs font-bold text-vivo-dark uppercase tracking-wider mb-2">Fotos da Execução</label>
                 <div class="flex gap-2 mb-2">
-                    <button type="button" id="btn-camera-exec" class="flex-1 bg-vivo-purple text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center justify-center gap-1" onclick="document.getElementById('foto-input-camera-exec').click()">
+                    <button type="button" id="btn-camera-exec" class="flex-1 bg-vivo-purple text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center justify-center gap-1" onclick="openFileInputExec('camera')">
                         <i data-lucide="camera" class="w-4 h-4"></i>
                         Câmera
                     </button>
-                    <button type="button" id="btn-galeria-exec" class="flex-1 bg-gray-200 text-gray-800 px-4 py-2 rounded-lg text-sm font-bold flex items-center justify-center gap-1" onclick="document.getElementById('foto-input-galeria-exec').click()">
+                    <button type="button" id="btn-galeria-exec" class="flex-1 bg-gray-200 text-gray-800 px-4 py-2 rounded-lg text-sm font-bold flex items-center justify-center gap-1" onclick="openFileInputExec('galeria')">
                         <i data-lucide="image" class="w-4 h-4"></i>
                         Galeria
                     </button>
                 </div>
-                <input type="file" id="foto-input-camera-exec" name="foto[]" accept="image/*" capture="environment" multiple class="hidden" onchange="handleFilesExec(this)" />
-                <input type="file" id="foto-input-galeria-exec" name="foto[]" accept="image/*" multiple class="hidden" onchange="handleFilesExec(this)" />
+                <input type="file" id="foto-input-camera-exec" accept="image/*" capture="environment" multiple class="hidden" onchange="handleFilesExec(this)" />
+                <input type="file" id="foto-input-galeria-exec" accept="image/*" multiple class="hidden" onchange="handleFilesExec(this)" />
+                <input type="file" id="foto-input-submit-exec" name="foto[]" multiple class="hidden" />
                 <p class="text-[10px] text-gray-400 mt-2">Envie uma ou mais imagens do equipamento e do serviço finalizado.</p>
                 <div id="foto-preview-exec" class="grid grid-cols-2 gap-3 mt-4"></div>
             </div>
@@ -245,25 +249,30 @@ $arquivos = $stmtArquivos->fetchAll();
 
 <script>
   document.addEventListener('DOMContentLoaded', function () {
+    // ===== FORMULÁRIO 1: Aceitar e Finalizar (Pendente/Triagem) =====
     const cameraInput = document.getElementById('foto-input-camera');
     const galeriaInput = document.getElementById('foto-input-galeria');
+    const submitInput = document.getElementById('foto-input-submit');
     const preview = document.getElementById('foto-preview');
     let selectedFiles = [];
 
-    const updateInputFiles = () => {
+    function openFileInput(source) {
+      if (source === 'camera') {
+        cameraInput?.click();
+      } else {
+        galeriaInput?.click();
+      }
+    }
+
+    function updateSubmitInput() {
       const dataTransfer = new DataTransfer();
       selectedFiles.forEach((file) => dataTransfer.items.add(file));
-      // Update both inputs with the combined files
-      if (cameraInput) cameraInput.files = dataTransfer.files;
-      if (galeriaInput) galeriaInput.files = dataTransfer.files;
-    };
+      if (submitInput) submitInput.files = dataTransfer.files;
+    }
 
-    const renderPreview = () => {
+    function renderPreview() {
       preview.innerHTML = '';
-
-      if (selectedFiles.length === 0) {
-        return;
-      }
+      if (selectedFiles.length === 0) return;
 
       selectedFiles.forEach((file, index) => {
         const card = document.createElement('div');
@@ -280,7 +289,7 @@ $arquivos = $stmtArquivos->fetchAll();
         deleteButton.innerHTML = '<span class="text-xs font-bold">×</span>';
         deleteButton.addEventListener('click', function () {
           selectedFiles.splice(index, 1);
-          updateInputFiles();
+          updateSubmitInput();
           renderPreview();
         });
 
@@ -293,23 +302,24 @@ $arquivos = $stmtArquivos->fetchAll();
         card.appendChild(info);
         preview.appendChild(card);
       });
-    };
+    }
 
-    const handleFiles = (input) => {
+    function handleFiles(input) {
       const files = Array.from(input.files || []);
-
       files.forEach((file) => {
         const exists = selectedFiles.some(
           (current) => current.name === file.name && current.size === file.size && current.lastModified === file.lastModified
         );
-        if (!exists) {
-          selectedFiles.push(file);
-        }
+        if (!exists) selectedFiles.push(file);
       });
-
-      updateInputFiles();
+      // Clear the source input
+      input.value = '';
+      updateSubmitInput();
       renderPreview();
-    };
+    }
+
+    // Expose globally for onclick handlers
+    window.openFileInput = openFileInput;
 
     if (cameraInput) cameraInput.addEventListener('change', function (event) {
       handleFiles(event.target);
@@ -318,26 +328,28 @@ $arquivos = $stmtArquivos->fetchAll();
       handleFiles(event.target);
     });
 
-    // Handler para o formulário "Em Execução"
+    // ===== FORMULÁRIO 2: Em Execução (Finalizar) =====
     const cameraInputExec = document.getElementById('foto-input-camera-exec');
     const galeriaInputExec = document.getElementById('foto-input-galeria-exec');
+    const submitInputExec = document.getElementById('foto-input-submit-exec');
     const previewExec = document.getElementById('foto-preview-exec');
     let selectedFilesExec = [];
 
-    const handleFilesExec = (input) => {
-      const files = Array.from(input.files || []);
-      files.forEach((file) => {
-        const exists = selectedFilesExec.some(
-          (current) => current.name === file.name && current.size === file.size && current.lastModified === file.lastModified
-        );
-        if (!exists) {
-          selectedFilesExec.push(file);
-        }
-      });
-      renderPreviewExec();
-    };
+    function openFileInputExec(source) {
+      if (source === 'camera') {
+        cameraInputExec?.click();
+      } else {
+        galeriaInputExec?.click();
+      }
+    }
 
-    const renderPreviewExec = () => {
+    function updateSubmitInputExec() {
+      const dataTransfer = new DataTransfer();
+      selectedFilesExec.forEach((file) => dataTransfer.items.add(file));
+      if (submitInputExec) submitInputExec.files = dataTransfer.files;
+    }
+
+    function renderPreviewExec() {
       previewExec.innerHTML = '';
       if (selectedFilesExec.length === 0) return;
 
@@ -356,6 +368,7 @@ $arquivos = $stmtArquivos->fetchAll();
         deleteButton.innerHTML = '<span class="text-xs font-bold">×</span>';
         deleteButton.addEventListener('click', function () {
           selectedFilesExec.splice(index, 1);
+          updateSubmitInputExec();
           renderPreviewExec();
         });
 
@@ -368,7 +381,22 @@ $arquivos = $stmtArquivos->fetchAll();
         card.appendChild(info);
         previewExec.appendChild(card);
       });
-    };
+    }
+
+    function handleFilesExec(input) {
+      const files = Array.from(input.files || []);
+      files.forEach((file) => {
+        const exists = selectedFilesExec.some(
+          (current) => current.name === file.name && current.size === file.size && current.lastModified === file.lastModified
+        );
+        if (!exists) selectedFilesExec.push(file);
+      });
+      input.value = '';
+      updateSubmitInputExec();
+      renderPreviewExec();
+    }
+
+    window.openFileInputExec = openFileInputExec;
 
     if (cameraInputExec) cameraInputExec.addEventListener('change', function (event) {
       handleFilesExec(event.target);
@@ -377,7 +405,7 @@ $arquivos = $stmtArquivos->fetchAll();
       handleFilesExec(event.target);
     });
 
-    // Geolocalização
+    // ===== Geolocalização =====
     const latInput = document.getElementById('latitude');
     const lngInput = document.getElementById('longitude');
     const locationText = document.getElementById('location-text');

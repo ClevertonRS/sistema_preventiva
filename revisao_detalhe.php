@@ -104,17 +104,18 @@ $supervisorDescricao = $p['descricao_supervisor'] ?? $p['observacao_supervisor']
         <div>
             <label class="block text-xs font-bold text-vivo-dark uppercase tracking-wider mb-2">Fotos de revisão</label>
             <div class="flex gap-2 mb-2">
-                <button type="button" id="btn-camera-rev" class="flex-1 bg-vivo-purple text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center justify-center gap-1" onclick="document.getElementById('foto-input-camera-rev').click()">
+                <button type="button" id="btn-camera-rev" class="flex-1 bg-vivo-purple text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center justify-center gap-1" onclick="openFileInputRev('camera')">
                     <i data-lucide="camera" class="w-4 h-4"></i>
                     Câmera
                 </button>
-                <button type="button" id="btn-galeria-rev" class="flex-1 bg-gray-200 text-gray-800 px-4 py-2 rounded-lg text-sm font-bold flex items-center justify-center gap-1" onclick="document.getElementById('foto-input-galeria-rev').click()">
+                <button type="button" id="btn-galeria-rev" class="flex-1 bg-gray-200 text-gray-800 px-4 py-2 rounded-lg text-sm font-bold flex items-center justify-center gap-1" onclick="openFileInputRev('galeria')">
                     <i data-lucide="image" class="w-4 h-4"></i>
                     Galeria
                 </button>
             </div>
-            <input type="file" id="foto-input-camera-rev" name="foto[]" accept="image/*" capture="environment" multiple class="hidden" onchange="handleFiles(this)" />
-            <input type="file" id="foto-input-galeria-rev" name="foto[]" accept="image/*" multiple class="hidden" onchange="handleFiles(this)" />
+            <input type="file" id="foto-input-camera-rev" accept="image/*" capture="environment" multiple class="hidden" onchange="handleFilesRev(this)" />
+            <input type="file" id="foto-input-galeria-rev" accept="image/*" multiple class="hidden" onchange="handleFilesRev(this)" />
+            <input type="file" id="foto-input-submit-rev" name="foto[]" multiple class="hidden" />
             <p class="text-[10px] text-gray-400 mt-2">Envie uma ou mais imagens que ajudem o supervisor a analisar a revisão.</p>
             <div id="foto-preview-rev" class="grid grid-cols-2 gap-3 mt-4"></div>
         </div>
@@ -145,17 +146,25 @@ $supervisorDescricao = $p['descricao_supervisor'] ?? $p['observacao_supervisor']
   document.addEventListener('DOMContentLoaded', function () {
     const cameraInput = document.getElementById('foto-input-camera-rev');
     const galeriaInput = document.getElementById('foto-input-galeria-rev');
+    const submitInput = document.getElementById('foto-input-submit-rev');
     const preview = document.getElementById('foto-preview-rev');
     let selectedFiles = [];
 
-    const updateInputFiles = () => {
+    function openFileInputRev(source) {
+      if (source === 'camera') {
+        cameraInput?.click();
+      } else {
+        galeriaInput?.click();
+      }
+    }
+
+    function updateSubmitInput() {
       const dataTransfer = new DataTransfer();
       selectedFiles.forEach((file) => dataTransfer.items.add(file));
-      if (cameraInput) cameraInput.files = dataTransfer.files;
-      if (galeriaInput) galeriaInput.files = dataTransfer.files;
-    };
+      if (submitInput) submitInput.files = dataTransfer.files;
+    }
 
-    const renderPreview = () => {
+    function renderPreview() {
       preview.innerHTML = '';
       if (selectedFiles.length === 0) return;
 
@@ -174,7 +183,7 @@ $supervisorDescricao = $p['descricao_supervisor'] ?? $p['observacao_supervisor']
         deleteButton.innerHTML = '<span class="text-xs font-bold">×</span>';
         deleteButton.addEventListener('click', function () {
           selectedFiles.splice(index, 1);
-          updateInputFiles();
+          updateSubmitInput();
           renderPreview();
         });
 
@@ -187,9 +196,9 @@ $supervisorDescricao = $p['descricao_supervisor'] ?? $p['observacao_supervisor']
         card.appendChild(info);
         preview.appendChild(card);
       });
-    };
+    }
 
-    const handleFiles = (input) => {
+    function handleFilesRev(input) {
       const files = Array.from(input.files || []);
       files.forEach((file) => {
         const exists = selectedFiles.some(
@@ -197,12 +206,19 @@ $supervisorDescricao = $p['descricao_supervisor'] ?? $p['observacao_supervisor']
         );
         if (!exists) selectedFiles.push(file);
       });
-      updateInputFiles();
+      input.value = '';
+      updateSubmitInput();
       renderPreview();
-    };
+    }
 
-    if (cameraInput) cameraInput.addEventListener('change', function (event) { handleFiles(event.target); });
-    if (galeriaInput) galeriaInput.addEventListener('change', function (event) { handleFiles(event.target); });
+    window.openFileInputRev = openFileInputRev;
+
+    if (cameraInput) cameraInput.addEventListener('change', function (event) {
+      handleFilesRev(event.target);
+    });
+    if (galeriaInput) galeriaInput.addEventListener('change', function (event) {
+      handleFilesRev(event.target);
+    });
 
     // Geolocalização
     const latInput = document.getElementById('latitude');
