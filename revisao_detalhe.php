@@ -103,9 +103,20 @@ $supervisorDescricao = $p['descricao_supervisor'] ?? $p['observacao_supervisor']
 
         <div>
             <label class="block text-xs font-bold text-vivo-dark uppercase tracking-wider mb-2">Fotos de revisão</label>
-            <input id="foto-input" type="file" name="foto[]" accept="image/*" multiple class="w-full text-xs text-gray-500" />
+            <div class="flex gap-2 mb-2">
+                <button type="button" id="btn-camera-rev" class="flex-1 bg-vivo-purple text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center justify-center gap-1" onclick="document.getElementById('foto-input-camera-rev').click()">
+                    <i data-lucide="camera" class="w-4 h-4"></i>
+                    Câmera
+                </button>
+                <button type="button" id="btn-galeria-rev" class="flex-1 bg-gray-200 text-gray-800 px-4 py-2 rounded-lg text-sm font-bold flex items-center justify-center gap-1" onclick="document.getElementById('foto-input-galeria-rev').click()">
+                    <i data-lucide="image" class="w-4 h-4"></i>
+                    Galeria
+                </button>
+            </div>
+            <input type="file" id="foto-input-camera-rev" name="foto[]" accept="image/*" capture="environment" multiple class="hidden" onchange="handleFiles(this)" />
+            <input type="file" id="foto-input-galeria-rev" name="foto[]" accept="image/*" multiple class="hidden" onchange="handleFiles(this)" />
             <p class="text-[10px] text-gray-400 mt-2">Envie uma ou mais imagens que ajudem o supervisor a analisar a revisão.</p>
-            <div id="foto-preview" class="grid grid-cols-2 gap-3 mt-4"></div>
+            <div id="foto-preview-rev" class="grid grid-cols-2 gap-3 mt-4"></div>
         </div>
 
         <button type="submit" class="w-full bg-gradient-to-r from-vivo-purple to-purple-700 hover:from-vivo-purpleDark hover:to-purple-900 text-white font-bold py-4 rounded-xl shadow-lg shadow-purple-200 hover:shadow-xl transition-all duration-300 text-sm uppercase tracking-wider flex items-center justify-center gap-2">
@@ -132,21 +143,21 @@ $supervisorDescricao = $p['descricao_supervisor'] ?? $p['observacao_supervisor']
 
 <script>
   document.addEventListener('DOMContentLoaded', function () {
-    const fotoInput = document.getElementById('foto-input');
-    const preview = document.getElementById('foto-preview');
+    const cameraInput = document.getElementById('foto-input-camera-rev');
+    const galeriaInput = document.getElementById('foto-input-galeria-rev');
+    const preview = document.getElementById('foto-preview-rev');
     let selectedFiles = [];
 
     const updateInputFiles = () => {
       const dataTransfer = new DataTransfer();
       selectedFiles.forEach((file) => dataTransfer.items.add(file));
-      fotoInput.files = dataTransfer.files;
+      if (cameraInput) cameraInput.files = dataTransfer.files;
+      if (galeriaInput) galeriaInput.files = dataTransfer.files;
     };
 
     const renderPreview = () => {
       preview.innerHTML = '';
-      if (selectedFiles.length === 0) {
-        return;
-      }
+      if (selectedFiles.length === 0) return;
 
       selectedFiles.forEach((file, index) => {
         const card = document.createElement('div');
@@ -178,19 +189,20 @@ $supervisorDescricao = $p['descricao_supervisor'] ?? $p['observacao_supervisor']
       });
     };
 
-    fotoInput.addEventListener('change', function (event) {
-      const files = Array.from(event.target.files || []);
+    const handleFiles = (input) => {
+      const files = Array.from(input.files || []);
       files.forEach((file) => {
         const exists = selectedFiles.some(
           (current) => current.name === file.name && current.size === file.size && current.lastModified === file.lastModified
         );
-        if (!exists) {
-          selectedFiles.push(file);
-        }
+        if (!exists) selectedFiles.push(file);
       });
       updateInputFiles();
       renderPreview();
-    });
+    };
+
+    if (cameraInput) cameraInput.addEventListener('change', function (event) { handleFiles(event.target); });
+    if (galeriaInput) galeriaInput.addEventListener('change', function (event) { handleFiles(event.target); });
 
     // Geolocalização
     const latInput = document.getElementById('latitude');

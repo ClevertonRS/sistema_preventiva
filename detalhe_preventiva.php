@@ -120,8 +120,19 @@ $arquivos = $stmtArquivos->fetchAll();
 
             <div>
                 <label class="block text-xs font-bold text-vivo-dark uppercase tracking-wider mb-2">Fotos da Execução</label>
-                <input id="foto-input" type="file" name="foto[]" accept="image/*" capture="environment" multiple class="w-full text-xs text-gray-500" />
-                <p class="text-[10px] text-gray-400 mt-2">Envie uma ou mais imagens do equipamento e do serviço finalizado. Use a câmera ou selecione da galeria.</p>
+                <div class="flex gap-2 mb-2">
+                    <button type="button" id="btn-camera" class="flex-1 bg-vivo-purple text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center justify-center gap-1" onclick="document.getElementById('foto-input-camera').click()">
+                        <i data-lucide="camera" class="w-4 h-4"></i>
+                        Câmera
+                    </button>
+                    <button type="button" id="btn-galeria" class="flex-1 bg-gray-200 text-gray-800 px-4 py-2 rounded-lg text-sm font-bold flex items-center justify-center gap-1" onclick="document.getElementById('foto-input-galeria').click()">
+                        <i data-lucide="image" class="w-4 h-4"></i>
+                        Galeria
+                    </button>
+                </div>
+                <input type="file" id="foto-input-camera" name="foto[]" accept="image/*" capture="environment" multiple class="hidden" onchange="handleFiles(this)" />
+                <input type="file" id="foto-input-galeria" name="foto[]" accept="image/*" multiple class="hidden" onchange="handleFiles(this)" />
+                <p class="text-[10px] text-gray-400 mt-2">Envie uma ou mais imagens do equipamento e do serviço finalizado.</p>
                 <div id="foto-preview" class="grid grid-cols-2 gap-3 mt-4"></div>
             </div>
 
@@ -166,9 +177,20 @@ $arquivos = $stmtArquivos->fetchAll();
 
             <div>
                 <label class="block text-xs font-bold text-vivo-dark uppercase tracking-wider mb-2">Fotos da Execução</label>
-                <input id="foto-input" type="file" name="foto[]" accept="image/*" capture="environment" multiple class="w-full text-xs text-gray-500" />
-                <p class="text-[10px] text-gray-400 mt-2">Envie uma ou mais imagens do equipamento e do serviço finalizado. Elas aparecerão aqui assim que forem selecionadas.</p>
-                <div id="foto-preview" class="grid grid-cols-2 gap-3 mt-4"></div>
+                <div class="flex gap-2 mb-2">
+                    <button type="button" id="btn-camera-exec" class="flex-1 bg-vivo-purple text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center justify-center gap-1" onclick="document.getElementById('foto-input-camera-exec').click()">
+                        <i data-lucide="camera" class="w-4 h-4"></i>
+                        Câmera
+                    </button>
+                    <button type="button" id="btn-galeria-exec" class="flex-1 bg-gray-200 text-gray-800 px-4 py-2 rounded-lg text-sm font-bold flex items-center justify-center gap-1" onclick="document.getElementById('foto-input-galeria-exec').click()">
+                        <i data-lucide="image" class="w-4 h-4"></i>
+                        Galeria
+                    </button>
+                </div>
+                <input type="file" id="foto-input-camera-exec" name="foto[]" accept="image/*" capture="environment" multiple class="hidden" onchange="handleFilesExec(this)" />
+                <input type="file" id="foto-input-galeria-exec" name="foto[]" accept="image/*" multiple class="hidden" onchange="handleFilesExec(this)" />
+                <p class="text-[10px] text-gray-400 mt-2">Envie uma ou mais imagens do equipamento e do serviço finalizado.</p>
+                <div id="foto-preview-exec" class="grid grid-cols-2 gap-3 mt-4"></div>
             </div>
 
             <button type="submit" class="w-full bg-gradient-to-r from-vivo-purple to-purple-700 hover:from-vivo-purpleDark hover:to-purple-900 text-white font-bold py-4 rounded-xl shadow-lg shadow-purple-200 hover:shadow-xl transition-all duration-300 text-sm uppercase tracking-wider flex items-center justify-center gap-2">
@@ -223,14 +245,17 @@ $arquivos = $stmtArquivos->fetchAll();
 
 <script>
   document.addEventListener('DOMContentLoaded', function () {
-    const fotoInput = document.getElementById('foto-input');
+    const cameraInput = document.getElementById('foto-input-camera');
+    const galeriaInput = document.getElementById('foto-input-galeria');
     const preview = document.getElementById('foto-preview');
     let selectedFiles = [];
 
     const updateInputFiles = () => {
       const dataTransfer = new DataTransfer();
       selectedFiles.forEach((file) => dataTransfer.items.add(file));
-      fotoInput.files = dataTransfer.files;
+      // Update both inputs with the combined files
+      if (cameraInput) cameraInput.files = dataTransfer.files;
+      if (galeriaInput) galeriaInput.files = dataTransfer.files;
     };
 
     const renderPreview = () => {
@@ -270,8 +295,8 @@ $arquivos = $stmtArquivos->fetchAll();
       });
     };
 
-    fotoInput.addEventListener('change', function (event) {
-      const files = Array.from(event.target.files || []);
+    const handleFiles = (input) => {
+      const files = Array.from(input.files || []);
 
       files.forEach((file) => {
         const exists = selectedFiles.some(
@@ -284,6 +309,72 @@ $arquivos = $stmtArquivos->fetchAll();
 
       updateInputFiles();
       renderPreview();
+    };
+
+    if (cameraInput) cameraInput.addEventListener('change', function (event) {
+      handleFiles(event.target);
+    });
+    if (galeriaInput) galeriaInput.addEventListener('change', function (event) {
+      handleFiles(event.target);
+    });
+
+    // Handler para o formulário "Em Execução"
+    const cameraInputExec = document.getElementById('foto-input-camera-exec');
+    const galeriaInputExec = document.getElementById('foto-input-galeria-exec');
+    const previewExec = document.getElementById('foto-preview-exec');
+    let selectedFilesExec = [];
+
+    const handleFilesExec = (input) => {
+      const files = Array.from(input.files || []);
+      files.forEach((file) => {
+        const exists = selectedFilesExec.some(
+          (current) => current.name === file.name && current.size === file.size && current.lastModified === file.lastModified
+        );
+        if (!exists) {
+          selectedFilesExec.push(file);
+        }
+      });
+      renderPreviewExec();
+    };
+
+    const renderPreviewExec = () => {
+      previewExec.innerHTML = '';
+      if (selectedFilesExec.length === 0) return;
+
+      selectedFilesExec.forEach((file, index) => {
+        const card = document.createElement('div');
+        card.className = 'relative rounded-xl overflow-hidden border border-gray-200 shadow-sm bg-white';
+
+        const image = document.createElement('img');
+        image.src = URL.createObjectURL(file);
+        image.alt = file.name;
+        image.className = 'w-full h-32 object-cover';
+
+        const deleteButton = document.createElement('button');
+        deleteButton.type = 'button';
+        deleteButton.className = 'absolute top-2 right-2 bg-white/90 text-red-600 rounded-full p-1 border border-red-100 hover:bg-white';
+        deleteButton.innerHTML = '<span class="text-xs font-bold">×</span>';
+        deleteButton.addEventListener('click', function () {
+          selectedFilesExec.splice(index, 1);
+          renderPreviewExec();
+        });
+
+        const info = document.createElement('div');
+        info.className = 'p-2';
+        info.innerHTML = `<p class="text-[11px] text-gray-500 truncate">${file.name}</p>`;
+
+        card.appendChild(image);
+        card.appendChild(deleteButton);
+        card.appendChild(info);
+        previewExec.appendChild(card);
+      });
+    };
+
+    if (cameraInputExec) cameraInputExec.addEventListener('change', function (event) {
+      handleFilesExec(event.target);
+    });
+    if (galeriaInputExec) galeriaInputExec.addEventListener('change', function (event) {
+      handleFilesExec(event.target);
     });
 
     // Geolocalização
