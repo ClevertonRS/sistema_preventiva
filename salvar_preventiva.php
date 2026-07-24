@@ -1,8 +1,16 @@
 <?php
 require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/config/db.php';
+require_once __DIR__ . '/includes/security.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // CSRF
+    if (!csrf_validate($_POST['csrf_token'] ?? null)) {
+        security_log('CSRF inválido em salvar_preventiva', ['ip' => $_SERVER['REMOTE_ADDR'] ?? 'unknown']);
+        header('Location: /preventivas');
+        exit;
+    }
+
     $preventivaId = $_POST['preventiva_id'] ?? null;
     $acao = $_POST['acao'] ?? 'finalizar';
     $descricao = trim($_POST['descricao'] ?? '');
@@ -12,6 +20,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $locationSet = (!empty($latitude) && !empty($longitude)) ? ", latitude = :latitude, longitude = :longitude" : '';
 
     if (!$preventivaId) {
+        header('Location: /preventivas');
+        exit;
+    }
+
+    // Verifica ownership da preventiva
+    $stmt = $pdo->prepare("SELECT id, tecnico_id FROM preventivas_rede WHERE id = :id LIMIT 1");
+    $stmt->execute([':id' => $preventivaId]);
+    $prev = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$prev) {
+        header('Location: /preventivas');
+        exit;
+    }
+
+    // Apenas o técnico dono pode aceitar/finalizar (exceto aceitar que atribui)
+    if ($acao === 'finalizar' && (int)$prev['tecnico_id'] !== (int)$_SESSION['user_id']) {
+        security_log('Tentativa de finalizar OS de outro técnico', ['user_id' => $_SESSION['user_id'], 'prev_id' => $preventivaId]);
         header('Location: /preventivas');
         exit;
     }
@@ -35,6 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         $stmt->execute($params);
 
+        // Upload seguro
         if (!empty($_FILES['foto']) && is_array($_FILES['foto']['name'])) {
             $pastaUpload = __DIR__ . '/uploads/';
             if (!is_dir($pastaUpload)) {
@@ -46,15 +72,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     continue;
                 }
 
-                $extensao = pathinfo($nomeOriginal, PATHINFO_EXTENSION);
-                if (empty($extensao)) {
-                    $extensao = 'jpg';
+                $file = [
+                    'name' => $_FILES['foto']['name'][$index],
+                    'type' => $_FILES['foto']['type'][$index],
+                    'tmp_name' => $_FILES['foto']['tmp_name'][$index],
+                    'error' => $_FILES['foto']['error'][$index],
+                    'size' => $_FILES['foto']['size'][$index],
+                ];
+
+                $validated = validate_upload($file);
+                if (!$validated['ok']) {
+                    security_log('Upload rejeitado', ['error' => $validated['error'], 'file' => $file['name']]);
+                    continue;
                 }
 
-                $novoNome = 'preventiva_' . $preventivaId . '_' . time() . '_' . $index . '.' . $extensao;
+                $novoNome = safe_filename('preventiva_' . $preventivaId, $validated['ext']);
                 $destino = $pastaUpload . $novoNome;
 
-                if (move_uploaded_file($_FILES['foto']['tmp_name'][$index], $destino)) {
+                if (move_uploaded_file($validated['tmp_name'], $destino)) {
                     $caminhoRelativo = 'uploads/' . $novoNome;
 
                     $stmtArquivo = $pdo->prepare("INSERT INTO preventivas_arquivos 
@@ -73,8 +108,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
+    // Safe redirect (allowlist)
     $returnUrl = $_POST['return_url'] ?? '';
-    if (!empty($returnUrl) && strpos($returnUrl, '/') === 0) {
+    $allowedReturns = ['/preventivas', '/triagem', '/execucao', '/revisao', '/concluidas', '/dashboard'];
+    if (!empty($returnUrl) && in_array($returnUrl, $allowedReturns, true)) {
         header('Location: ' . $returnUrl);
         exit;
     }

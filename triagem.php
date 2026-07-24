@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/config/db.php';
+require_once __DIR__ . '/includes/security.php';
 require_once __DIR__ . '/includes/header.php';
 
 // Busca preventivas com status 'Triagem'
@@ -42,6 +43,7 @@ try {
           <!-- <a href="/preventiva/<?= htmlspecialchars($task['id']) ?>" class="text-xs text-vivo-purple font-semibold">Ver</a> -->
 
           <form class="confirm-aceitar" action="/salvar-preventiva" method="POST">
+            <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
             <input type="hidden" name="preventiva_id" value="<?= htmlspecialchars($task['id']) ?>">
             <input type="hidden" name="acao" value="aceitar">
             <button type="submit" class="bg-vivo-purple text-white px-3 py-2 rounded-lg text-sm font-bold">Atender</button>

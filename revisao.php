@@ -3,7 +3,7 @@ require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/config/db.php';
 require_once __DIR__ . '/includes/header.php';
 
-$stmt = $pdo->prepare("SELECT id, gpon, splitter, uf, localidade, prioridade, criado_em FROM preventivas_rede WHERE status = 'revisao' ORDER BY criado_em DESC");
+$stmt = $pdo->prepare("SELECT id, gpon, splitter, uf, localidade, prioridade, criado_em FROM preventivas_rede WHERE status = 'Revisão' ORDER BY criado_em DESC");
 $stmt->execute();
 $tasks = $stmt->fetchAll();
 ?>

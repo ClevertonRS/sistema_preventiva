@@ -1,4 +1,20 @@
 <?php
+require_once __DIR__ . '/security.php';
+
+// Security Headers (antes de qualquer output)
+if (!headers_sent()) {
+    header('X-Content-Type-Options: nosniff');
+    header('X-Frame-Options: DENY');
+    header('X-XSS-Protection: 1; mode=block');
+    header('Referrer-Policy: strict-origin-when-cross-origin');
+    header('Permissions-Policy: geolocation=(self), camera=(), microphone=()');
+    // CSP básico - ajuste conforme necessário
+    header("Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://unpkg.com; style-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https://maps.google.com https://www.google.com;");
+    if (isset($_SERVER['HTTPS'])) {
+        header('Strict-Transport-Security: max-age=31536000; includeSubDomains');
+    }
+}
+
   $currentPath = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
   $currentBase = explode('/', trim($currentPath, '/'))[0] ?: 'dashboard';
   $navMap = [
@@ -72,9 +88,9 @@
         <div class="flex items-center justify-between h-16">
           <div class="flex items-center space-x-3">
             <div class="text-white p-2 rounded-xl flex items-center justify-center shadow-md shadow-purple-200 bg-vivo-purple">
-              <span class="font-black text-xl">V</span>
+              <span class="font-black text-xl">P</span>
             </div>
-            <span class="text-xl font-extrabold tracking-tight text-vivo-purple">Gestão Prev</span>
+            <span class="text-xl font-extrabold tracking-tight text-vivo-purple">Prev Tec </span>
           </div>
 
           <nav class="hidden md:flex space-x-1">

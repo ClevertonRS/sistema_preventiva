@@ -2,6 +2,7 @@
 require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/config/db.php';
 require_once __DIR__ . '/includes/header.php';
+require_once __DIR__ . '/includes/security.php';
 
 $id = $_GET['id'] ?? null;
 if (!$id) {
@@ -9,7 +10,7 @@ if (!$id) {
     exit;
 }
 
-// 1. Busca os dados da preventiva
+// Busca a preventiva
 $stmt = $pdo->prepare("SELECT * FROM preventivas_rede WHERE id = :id LIMIT 1");
 $stmt->execute([':id' => $id]);
 $p = $stmt->fetch();
@@ -19,9 +20,26 @@ if (!$p) {
     exit;
 }
 
-// 2. Busca as fotos/arquivos salvos na tabela preventivas_arquivos
-$arquivos = '';
-$stmtArquivos = $pdo->prepare("SELECT caminho_arquivo FROM preventivas_arquivos WHERE preventiva_id = :id ORDER BY id DESC");
+// IDOR protection: controle de acesso por status e nível
+$userLevel = $_SESSION['user_nivel'] ?? 1; // 1=técnico, 2=supervisor, 3=admin
+$isOwner = ($p['tecnico_id'] ?? 0) === $_SESSION['user_id'];
+$isSupervisor = $userLevel >= 2;
+
+// Regras de acesso:
+// - Triagem: todos veem (para aceitar)
+// - Em Execução: só dono ou supervisor/admin
+// - Em Análise/Revisão/Concluída: dono ou supervisor/admin
+if ($p['status'] === 'Em Execução' && !$isOwner && !$isSupervisor) {
+    header('Location: /preventivas');
+    exit;
+}
+if (in_array($p['status'], ['Em Análise', 'Revisão', 'Concluída'], true) && !$isOwner && !$isSupervisor) {
+    header('Location: /preventivas');
+    exit;
+}
+
+// Arquivos
+$stmtArquivos = $pdo->prepare("SELECT caminho_arquivo, criado_em FROM preventivas_arquivos WHERE preventiva_id = :id ORDER BY id DESC");
 $stmtArquivos->execute([':id' => $id]);
 $arquivos = $stmtArquivos->fetchAll();
 ?>
@@ -92,6 +110,7 @@ $arquivos = $stmtArquivos->fetchAll();
             </div>
 
             <form action="/salvar-preventiva" method="POST" class="space-y-4 confirm-aceitar">
+                <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
                 <input type="hidden" name="preventiva_id" value="<?= $p['id'] ?>">
                 <input type="hidden" name="acao" value="aceitar">
                 <input type="hidden" name="latitude" id="latitude" value="">
@@ -111,6 +130,7 @@ $arquivos = $stmtArquivos->fetchAll();
         </div>
 
         <form action="/salvar-preventiva" method="POST" enctype="multipart/form-data" class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-4 confirm-finalizar">
+            <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
             <input type="hidden" name="preventiva_id" value="<?= $p['id'] ?>">
             <input type="hidden" name="acao" value="finalizar">
             <input type="hidden" name="latitude" id="latitude" value="">

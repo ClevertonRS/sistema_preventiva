@@ -1,34 +1,64 @@
 <?php
+require_once __DIR__ . '/config/db.php';
+require_once __DIR__ . '/includes/security.php';
+
+secure_session_config();
 session_start();
-require_once 'config/db.php';
+
+// Security Headers (antes de qualquer output)
+if (!headers_sent()) {
+    header('X-Content-Type-Options: nosniff');
+    header('X-Frame-Options: DENY');
+    header('X-XSS-Protection: 1; mode=block');
+    header('Referrer-Policy: strict-origin-when-cross-origin');
+    header('Permissions-Policy: geolocation=(), camera=(), microphone=()');
+    if (isset($_SERVER['HTTPS'])) {
+        header('Strict-Transport-Security: max-age=31536000; includeSubDomains');
+    }
+}
 
 $erro = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $usuario = trim($_POST['usuario'] ?? '');
-    $senha   = $_POST['senha'] ?? '';
-
-    if (empty($usuario) || empty($senha)) {
-        $erro = 'Preencha o usuário e a senha.';
+    // CSRF
+    if (!csrf_validate($_POST['csrf_token'] ?? null)) {
+        $erro = 'Token inválido. Recarregue a página.';
+    }
+    // Rate limit: 5 tentativas / 5 min por IP
+    elseif (!rate_limit('login', 5, 300)) {
+        $erro = 'Muitas tentativas. Tente novamente em 5 minutos.';
     } else {
-        try {
-            $stmt = $pdo->prepare("SELECT * FROM usuarios WHERE usuario = :usuario AND status = 1");
-            $stmt->execute([':usuario' => $usuario]);
-            $user = $stmt->fetch(PDO::FETCH_ASSOC);
+        $usuario = trim($_POST['usuario'] ?? '');
+        $senha   = $_POST['senha'] ?? '';
 
-            if ($user && password_verify($senha, $user['senha'])) {
-                $_SESSION['user_id'] = $user['id'];
-                $_SESSION['user_nome'] = $user['nome'];
-                $_SESSION['user_usuario'] = $user['usuario'];
-                $_SESSION['user_nivel'] = $user['nivel'];
+        if (empty($usuario) || empty($senha)) {
+            $erro = 'Preencha o usuário e a senha.';
+        } else {
+            try {
+                $stmt = $pdo->prepare("SELECT * FROM usuarios WHERE usuario = :usuario AND status = 1");
+                $stmt->execute([':usuario' => $usuario]);
+                $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-                header('Location: /dashboard');
-                exit;
-            } else {
-                $erro = 'Usuário ou senha inválidos, ou conta inativa.';
+                // Sempre executa password_verify para evitar timing attack
+                $hash = $user['senha'] ?? '$2y$10$dummyhash';
+                $valid = $user && password_verify($senha, $hash);
+
+                if ($valid) {
+                    session_regenerate_id(true);
+                    $_SESSION['user_id'] = $user['id'];
+                    $_SESSION['user_nome'] = $user['nome'];
+                    $_SESSION['user_usuario'] = $user['usuario'];
+                    $_SESSION['user_nivel'] = $user['nivel'];
+
+                    header('Location: /dashboard');
+                    exit;
+                } else {
+                    $erro = 'Usuário ou senha inválidos, ou conta inativa.';
+                }
+            } catch (PDOException $e) {
+                error_log('Login error: ' . $e->getMessage());
+                $erro = 'Erro no sistema. Tente novamente.';
             }
-        } catch (PDOException $e) {
-            $erro = 'Erro no sistema: ' . $e->getMessage();
         }
     }
 }
@@ -87,6 +117,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <span><?= htmlspecialchars($erro) ?></span>
                 </div>
             <?php endif; ?>
+
+            <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
 
             <div>
                 <label for="usuario" class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">Usuário</label>

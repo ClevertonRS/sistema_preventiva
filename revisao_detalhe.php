@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/config/db.php';
+require_once __DIR__ . '/includes/security.php';
 require_once __DIR__ . '/includes/header.php';
 
 $id = $_GET['id'] ?? null;
@@ -84,6 +85,7 @@ $supervisorDescricao = $p['descricao_supervisor'] ?? $p['observacao_supervisor']
     </div>
 
     <form action="/salvar-preventiva" method="POST" enctype="multipart/form-data" class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-4 confirm-finalizar">
+        <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
         <input type="hidden" name="preventiva_id" value="<?= htmlspecialchars($p['id']) ?>">
         <input type="hidden" name="acao" value="finalizar">
         <input type="hidden" name="return_url" value="/revisao-detalhe/<?= htmlspecialchars($p['id']) ?>">

@@ -9,7 +9,7 @@ $statusMap = [
     'execucao' => 'Em Execução',
     'analise' => 'Em Análise',
     'revisao' => 'Revisão',
-    'concluida' => 'Concluído',
+    'concluida' => 'Concluída',
 ];
 
 $statusFilter = $statusMap[$statusSlug] ?? '';
@@ -22,7 +22,8 @@ if ($statusFilter) {
     $params[':status'] = $statusFilter;
 }
 
-$stmt = $pdo->prepare("SELECT id, titulo, gpon, splitter, uf, localidade, status, prioridade, criado_em FROM preventivas_rede $whereSql ORDER BY FIELD(status,'Triagem','Em Execução','Em Análise','Revisão','Concluído'), criado_em DESC");
+$sql = "SELECT id, titulo, gpon, splitter, uf, localidade, status, prioridade, criado_em FROM preventivas_rede $whereSql ORDER BY FIELD(status,'Triagem','Em Execução','Em Análise','Revisão','Concluída'), criado_em DESC";
+$stmt = $pdo->prepare($sql);
 $stmt->execute($params);
 $tasks = $stmt->fetchAll();
 ?>

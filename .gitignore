@@ -2,6 +2,11 @@
 /db.sqlite3
 /db.sqlite3-journal
 
+# Variáveis de ambiente (NUNCA comitar .env real)
+.env
+.env.local
+*.env
+
 # Uploads e Evidências dos Técnicos (mantém a pasta, ignora o conteúdo)
 /uploads/*
 !/uploads/.gitkeep

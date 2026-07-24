@@ -40,7 +40,7 @@ try {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Painel Vivo - Home</title>
+    <title>Prev Tec - Home</title>
 
     <!-- Meta Tags PWA -->
     <meta name="theme-color" content="#660099" />
