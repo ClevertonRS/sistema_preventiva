@@ -4,9 +4,8 @@ require_once __DIR__ . '/config/db.php';
 require_once __DIR__ . '/includes/security.php';
 require_once __DIR__ . '/includes/header.php';
 
-// Busca preventivas com status 'Triagem'
 try {
-    $stmt = $pdo->prepare("SELECT id, gpon, splitter, uf, localidade, prioridade, criado_em FROM preventivas_rede WHERE status = 'Triagem' ORDER BY criado_em DESC");
+    $stmt = $pdo->prepare("SELECT id, gpon, splitter, uf, localidade, prioridade, criado_em FROM preventivas_rede WHERE status = 'aberta' ORDER BY criado_em DESC");
     $stmt->execute();
     $tasks = $stmt->fetchAll();
 } catch (PDOException $e) {
@@ -17,10 +16,8 @@ try {
 <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 mb-6">
   <div class="flex items-center justify-between">
     <div>
-      <h1 class="text-xl font-bold text-vivo-purple">Fila <?php echo count($tasks) ?> de Triagem</h1>
-      <p class="text-sm text-gray-500 mt-1">Preventivas com status <strong>Triagem</strong></p>
-    </div>
-    <div>
+      <h1 class="text-xl font-bold text-vivo-purple">Fila <?= count($tasks) ?> de Triagem</h1>
+      <p class="text-sm text-gray-500 mt-1">Preventivas com status <strong>aberta</strong></p>
     </div>
   </div>
 </div>
@@ -38,10 +35,9 @@ try {
           <p class="text-xs text-gray-500">#<?= htmlspecialchars($task['id']) ?> • <?= htmlspecialchars($task['gpon']) ?> / <?= htmlspecialchars($task['splitter']) ?> • <?= htmlspecialchars($task['localidade']) ?></p>
           <p class="text-[12px] text-gray-400">Prioridade: <?= htmlspecialchars($task['prioridade']) ?> • Aberta: <?= date('d/m/Y H:i', strtotime($task['criado_em'])) ?></p>
         </div>
-
         <div class="flex flex-col items-end gap-2">
             <a href="/preventiva/<?= htmlspecialchars($task['id']) ?>" class="bg-vivo-purple text-white px-3 py-2 rounded-lg text-sm font-bold text-center">Detalhar</a>
-          </div>
+        </div>
       </div>
     <?php endforeach; ?>
   <?php endif; ?>

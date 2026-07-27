@@ -115,7 +115,7 @@ $supervisorDescricao = $p['descricao_supervisor'] ?? $p['observacao_supervisor']
             </div>
             <input type="file" id="foto-input-camera-rev" accept="image/*" capture="environment" multiple class="hidden" onchange="handleFilesRev(this)" />
             <input type="file" id="foto-input-galeria-rev" accept="image/*" multiple class="hidden" onchange="handleFilesRev(this)" />
-            <input type="file" id="foto-input-submit-rev" name="foto[]" multiple class="hidden" />
+            <input type="file" id="foto-input-submit-rev" name="foto_depois[]" multiple class="hidden" />
             <p class="text-[10px] text-gray-400 mt-2">Envie uma ou mais imagens que ajudem o supervisor a analisar a revisão.</p>
             <div id="foto-preview-rev" class="grid grid-cols-2 gap-3 mt-4"></div>
         </div>

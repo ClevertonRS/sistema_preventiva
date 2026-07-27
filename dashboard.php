@@ -1,22 +1,16 @@
 <?php
-session_start();
+require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/config/db.php';
-
-// Proteção da página: se não estiver logado, redireciona para login
-if (!isset($_SESSION['user_id'])) {
-    header("Location: login.php");
-    exit;
-}
+require_once __DIR__ . '/includes/security.php';
+require_once __DIR__ . '/includes/header.php';
 
 $nomeUsuario = $_SESSION['user_nome'] ?? 'Operador';
 $inicialNome = strtoupper(substr($nomeUsuario, 0, 1));
 
 $statusCounts = [
-    'Triagem' => 0,
-    'Em Execução' => 0,
-    'Em Análise' => 0,
-    'Revisão' => 0,
-    'Concluída' => 0,
+    'aberta' => 0,
+    'em_atendimento' => 0,
+    'concluida' => 0,
 ];
 
 try {
@@ -28,7 +22,11 @@ try {
     }
 
     $stmtTasks = $pdo->query(
-        "SELECT id, gpon, splitter, uf, localidade, status, prioridade, criado_em FROM preventivas_rede WHERE status = 'Revisão' ORDER BY FIELD(status,'Triagem','Em Execução','Em Análise','Revisão','Concluída'), criado_em DESC"
+        "SELECT p.id, p.gpon, p.splitter, p.uf, p.localidade, p.status, p.prioridade, p.criado_em, a.status AS atendimento_status
+         FROM preventivas_rede p
+         JOIN atendimentos a ON a.preventiva_id = p.id
+         WHERE a.status = 'revisao'
+         ORDER BY p.criado_em DESC"
     );
     $tasks = $stmtTasks->fetchAll();
 } catch (PDOException $e) {
@@ -41,20 +39,14 @@ try {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Prev Tec - Home</title>
-
-    <!-- Meta Tags PWA -->
     <meta name="theme-color" content="#660099" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta name="apple-mobile-web-app-title" content="Painel Vivo" />
     <meta name="application-name" content="Preventivas Vivo" />
-
     <link rel="icon" href="assets/icons/vivo-icon.png" />
     <link rel="manifest" href="assets/icons/manifest.json" />
-
-    <!-- Tailwind CSS -->
-
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
       tailwind.config = {
@@ -75,32 +67,7 @@ try {
         },
       };
     </script>
-
-    <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
-
-    <script>
-      // Função para ocultar o botão e o feedback
-function ocultarBotaoInstalacao() {
-  const botao = document.getElementById('install-pwa');
-  const feedback = document.getElementById('install-feedback');
-  
-  if (botao) botao.classList.add('hidden');
-  if (feedback) feedback.classList.add('hidden');
-}
-
-// 1. Verifica se o PWA JÁ ESTÁ aberto como aplicativo instalado
-if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true) {
-  ocultarBotaoInstalacao();
-}
-
-// 2. Oculta o botão IMEDIATAMENTE após o usuário concluir a instalação
-window.addEventListener('appinstalled', (event) => {
-  ocultarBotaoInstalacao();
-  console.log('PWA instalado com sucesso!');
-});
-
-    </script>
     <style>
       ::-webkit-scrollbar { width: 6px; height: 6px; }
       ::-webkit-scrollbar-track { background: #f1f1f1; }
@@ -110,15 +77,10 @@ window.addEventListener('appinstalled', (event) => {
 </head>
 <body class="bg-vivo-grayLight text-vivo-textDark font-sans min-h-screen flex flex-col pb-16 md:pb-0">
 
-    <!-- HEADER / NAVEGAÇÃO -->
-    <?php
-      require_once __DIR__ . '/includes/header.php';
-    ?>
+    <?php require_once __DIR__ . '/includes/header.php'; ?>
 
-    <!-- CONTEÚDO PRINCIPAL -->
     <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
       
-      <!-- Banner Hero de Boas-Vindas -->
       <div class="bg-gradient-to-r from-vivo-purple to-vivo-purpleDark text-white rounded-2xl p-6 sm:p-8 shadow-xl mb-6 relative overflow-hidden">
         <div class="absolute right-0 bottom-0 opacity-10 translate-x-10 translate-y-10">
           <i data-lucide="activity" class="w-64 h-64"></i>
@@ -131,44 +93,35 @@ window.addEventListener('appinstalled', (event) => {
             Olá, <?= htmlspecialchars($nomeUsuario) ?>!
           </h1>
           <p class="text-purple-100 mt-2 text-sm sm:text-base">
-            Bem-vindo ao seu novo painel progressivo. Monitore suas revisões e tarefas executadas em tempo real.
+            Bem-vindo ao seu painel progressivo. Monitore suas revisões e tarefas em tempo real.
           </p>
         </div>
       </div>
 
-      <!-- Métricas Rápidas -->
-      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      <div class="grid grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
         <div class="bg-white p-4 rounded-xl shadow-sm border border-vivo-grayBorder flex items-center space-x-3">
           <div class="p-3 bg-amber-50 text-amber-600 rounded-lg"><i data-lucide="clock" class="w-6 h-6"></i></div>
           <div>
-            <span class="text-xs text-gray-500 block font-medium">Triagem</span>
-            <span class="text-xl font-bold text-gray-800"><?= $statusCounts['Triagem'] ?></span>
+            <span class="text-xs text-gray-500 block font-medium">Abertas</span>
+            <span class="text-xl font-bold text-gray-800"><?= $statusCounts['aberta'] ?></span>
           </div>
         </div>
         <div class="bg-white p-4 rounded-xl shadow-sm border border-vivo-grayBorder flex items-center space-x-3">
           <div class="p-3 bg-blue-50 text-blue-600 rounded-lg"><i data-lucide="play-circle" class="w-6 h-6"></i></div>
           <div>
-            <span class="text-xs text-gray-500 block font-medium">Em Execução</span>
-            <span class="text-xl font-bold text-gray-800"><?= $statusCounts['Em Execução'] ?></span>
-          </div>
-        </div>
-        <div class="bg-white p-4 rounded-xl shadow-sm border border-vivo-grayBorder flex items-center space-x-3">
-          <div class="p-3 bg-indigo-50 text-indigo-600 rounded-lg"><i data-lucide="search" class="w-6 h-6"></i></div>
-          <div>
-            <span class="text-xs text-gray-500 block font-medium">Em Análise</span>
-            <span class="text-xl font-bold text-gray-800"><?= $statusCounts['Em Análise'] ?></span>
+            <span class="text-xs text-gray-500 block font-medium">Em Atendimento</span>
+            <span class="text-xl font-bold text-gray-800"><?= $statusCounts['em_atendimento'] ?></span>
           </div>
         </div>
         <div class="bg-white p-4 rounded-xl shadow-sm border border-vivo-grayBorder flex items-center space-x-3">
           <div class="p-3 bg-emerald-50 text-emerald-600 rounded-lg"><i data-lucide="check-circle" class="w-6 h-6"></i></div>
           <div>
-            <span class="text-xs text-gray-500 block font-medium">Revisão</span>
-            <span class="text-xl font-bold text-gray-800"><?= $statusCounts['Revisão'] ?></span>
+            <span class="text-xs text-gray-500 block font-medium">Concluídas</span>
+            <span class="text-xl font-bold text-gray-800"><?= $statusCounts['concluida'] ?></span>
           </div>
         </div>
       </div>
 
-      <!-- Lista de Fluxos -->
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div class="lg:col-span-2 space-y-4">
           <div class="flex items-center justify-between">
@@ -180,36 +133,16 @@ window.addEventListener('appinstalled', (event) => {
 
           <div class="bg-white rounded-xl shadow-sm border border-vivo-grayBorder divide-y divide-gray-100">
             <?php if (empty($tasks)): ?>
-              <div class="p-4 text-center text-sm text-gray-500">Nenhuma preventiva encontrada.</div>
+              <div class="p-4 text-center text-sm text-gray-500">Nenhuma preventiva em revisão.</div>
             <?php else: ?>
               <?php foreach ($tasks as $task): ?>
-                <?php
-                  $badgeClass = 'bg-gray-100 text-gray-700 border-gray-200';
-                  switch ($task['status']) {
-                    case 'Triagem':
-                      $badgeClass = 'bg-amber-50 text-amber-700 border-amber-200';
-                      break;
-                    case 'Em Execução':
-                      $badgeClass = 'bg-blue-50 text-blue-700 border-blue-200';
-                      break;
-                    case 'Em Análise':
-                      $badgeClass = 'bg-indigo-50 text-indigo-700 border-indigo-200';
-                      break;
-                    case 'Revisão':
-                      $badgeClass = 'bg-violet-50 text-violet-700 border-violet-200';
-                      break;
-                    case 'Concluída':
-                      $badgeClass = 'bg-emerald-50 text-emerald-700 border-emerald-200';
-                      break;
-                  }
-                ?>
                 <div class="p-4 hover:bg-gray-50 transition-colors flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
                   <div class="space-y-2">
                     <div class="flex flex-wrap items-center gap-2">
-                      <span class="text-sm font-bold text-gray-800"><?= htmlspecialchars($task['titulo']) ?></span>
-                      <span class="text-[10px] uppercase tracking-[0.2em] px-2 py-1 rounded-full border <?= $badgeClass ?>"><?= htmlspecialchars($task['status']) ?></span>
+                      <span class="text-sm font-bold text-gray-800">OS #<?= str_pad($task['id'], 4, '0', STR_PAD_LEFT) ?></span>
+                      <span class="text-[10px] uppercase tracking-[0.22em] px-2 py-1 rounded-full border bg-violet-50 text-violet-700 border-violet-200">Revisão</span>
                     </div>
-                    <p class="text-xs text-gray-500">ID: #<?= htmlspecialchars($task['id']) ?> • <?= htmlspecialchars($task['gpon']) ?> / <?= htmlspecialchars($task['splitter']) ?> • <?= htmlspecialchars($task['localidade']) ?></p>
+                    <p class="text-xs text-gray-500"><?= htmlspecialchars($task['gpon']) ?> / <?= htmlspecialchars($task['splitter']) ?> • <?= htmlspecialchars($task['localidade']) ?></p>
                   </div>
                   <a href="/preventiva/<?= htmlspecialchars($task['id']) ?>" class="text-xs uppercase font-bold text-vivo-purple hover:text-vivo-purpleDark">Ver detalhes</a>
                 </div>
@@ -218,7 +151,6 @@ window.addEventListener('appinstalled', (event) => {
           </div>
         </div>
 
-        <!-- Sidebar / Informações -->
         <div class="space-y-6">
           <div class="bg-white p-5 rounded-xl shadow-sm border border-vivo-grayBorder">
             <h3 class="text-sm font-bold text-gray-800">A Vivo</h3>
@@ -230,82 +162,10 @@ window.addEventListener('appinstalled', (event) => {
       </div>
     </main>
 
-    <!-- NAVEGAÇÃO MOBILE (PWA Bar) -->
     <?php require_once __DIR__ . '/includes/footer.php'; ?>
-
-    
 
     <script>
       lucide.createIcons();
-
-      const installBtn = document.getElementById('install-pwa');
-      const installFeedback = document.getElementById('install-feedback');
-      let deferredPrompt = null;
-
-      const showFeedback = (message, isError = false) => {
-        if (!installFeedback) return;
-        installFeedback.textContent = message;
-        installFeedback.className = isError
-          ? 'mt-1 text-[10px] text-amber-700 font-medium'
-          : 'mt-1 text-[10px] text-vivo-purple font-medium';
-      };
-
-      if ("serviceWorker" in navigator) {
-        window.addEventListener("load", () => {
-          navigator.serviceWorker.register("./sw.js").catch((err) => console.warn(err));
-        });
-      }
-
-      const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
-      if (installBtn && isStandalone) {
-        installBtn.classList.add('hidden');
-      }
-
-      window.addEventListener('beforeinstallprompt', (event) => {
-        event.preventDefault();
-        deferredPrompt = event;
-        if (installBtn && !isStandalone) {
-          installBtn.classList.remove('hidden');
-          showFeedback('Pronto! Toque em Instalar para adicionar ao celular.');
-        }
-      });
-
-      if (installBtn) {
-        installBtn.addEventListener('click', async () => {
-          if (deferredPrompt) {
-            deferredPrompt.prompt();
-            const { outcome } = await deferredPrompt.userChoice;
-            deferredPrompt = null;
-            if (outcome === 'accepted') {
-              showFeedback('Aplicativo instalado com sucesso.');
-            } else {
-              showFeedback('Instalação cancelada.', true);
-            }
-            return;
-          }
-
-          const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
-          if (isStandalone) {
-            showFeedback('O app já está instalado neste dispositivo.');
-            return;
-          }
-
-          const isSecureContext = window.location.protocol === 'https:' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-          if (!isSecureContext) {
-            showFeedback('Abra o painel em HTTPS ou em localhost para ver a instalação.', true);
-            return;
-          }
-
-          showFeedback('No celular, o navegador pode não exibir o prompt automaticamente. Use o menu do Chrome/Edge para instalar o app.', true);
-        });
-      }
-
-      window.addEventListener('appinstalled', () => {
-        if (installBtn) {
-          installBtn.classList.add('hidden');
-        }
-        showFeedback('Aplicativo instalado com sucesso.');
-      });
     </script>
 </body>
 </html>

@@ -1,18 +1,22 @@
 <?php
 require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/config/db.php';
+require_once __DIR__ . '/includes/security.php';
 require_once __DIR__ . '/includes/header.php';
 
 $tecnicoId = $_SESSION['user_id'];
 
 try {
     $stmt = $pdo->prepare(
-        "SELECT id, gpon, splitter, uf, localidade, prioridade, criado_em, concluido_em
-         FROM preventivas_rede
-         WHERE status = 'Concluída' AND tecnico_id = :tecnico_id
-         ORDER BY concluido_em DESC, criado_em DESC"
+        "SELECT p.id, p.gpon, p.splitter, p.uf, p.localidade, p.prioridade, p.criado_em,
+                a.concluido_em
+         FROM preventivas_rede p
+         JOIN atendimentos a ON a.preventiva_id = p.id
+         WHERE p.status = 'concluida'
+           AND (a.tecnico_analise_id = :tecnico_id OR a.tecnico_execucao_id = :tecnico_id2)
+         ORDER BY a.concluido_em DESC, p.criado_em DESC"
     );
-    $stmt->execute([':tecnico_id' => $tecnicoId]);
+    $stmt->execute([':tecnico_id' => $tecnicoId, ':tecnico_id2' => $tecnicoId]);
     $tasks = $stmt->fetchAll();
 } catch (PDOException $e) {
     $tasks = [];
@@ -23,7 +27,7 @@ try {
   <div class="flex items-center justify-between gap-4">
     <div>
       <h1 class="text-xl font-bold text-vivo-purple">Preventivas Concluídas</h1>
-      <p class="text-sm text-gray-500 mt-1">Histórico de preventivas finalizadas registradas com seu usuário.</p>
+      <p class="text-sm text-gray-500 mt-1">Histórico de preventivas finalizadas em que você participou.</p>
     </div>
     <a href="/dashboard" class="text-xs text-vivo-purple font-semibold">Voltar ao painel</a>
   </div>
@@ -40,9 +44,6 @@ try {
         <div class="space-y-2">
           <h2 class="text-base font-bold text-gray-900">
             #<?= str_pad($task['id'], 4, '0', STR_PAD_LEFT) ?>
-            <?php if (!empty($task['titulo'])): ?>
-              — <?= htmlspecialchars($task['titulo']) ?>
-            <?php endif; ?>
           </h2>
           <p class="text-xs text-gray-500">
             <?= htmlspecialchars($task['gpon']) ?> / <?= htmlspecialchars($task['splitter']) ?>
