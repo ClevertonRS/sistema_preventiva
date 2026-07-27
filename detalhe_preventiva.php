@@ -434,50 +434,73 @@ setTimeout(function() {
             <h3 class="text-xs font-bold text-vivo-dark uppercase tracking-wider">Relatório do Serviço</h3>
 
             <?php if ($atendimento): ?>
-                <div class="text-xs text-gray-500 space-y-1">
-                    <p><strong>Analista:</strong> <?= htmlspecialchars($atendimento['nome_analista'] ?? 'N/A') ?></p>
-                    <p><strong>Executor:</strong> <?= htmlspecialchars($atendimento['nome_executor'] ?? $atendimento['nome_analista'] ?? 'N/A') ?></p>
-                </div>
+                <?php
+                    $fotosAnaliseConcluida = array_filter($arquivosAtendimento, fn($f) => $f['tipo'] === 'analise');
+                    $fotosExecucaoConcluida = array_filter($arquivosAtendimento, fn($f) => $f['tipo'] === 'execucao');
+                ?>
 
-                <?php if (!empty($atendimento['descricao_analise'])): ?>
-                    <div>
-                        <p class="text-xs font-semibold text-gray-400">Descrição da Análise:</p>
-                        <p class="text-sm text-gray-800 bg-gray-50 p-3 rounded-xl mt-1 border border-gray-100">
+                <div class="border-l-4 border-amber-400 pl-4 space-y-2">
+                    <h4 class="text-xs font-bold text-amber-700 uppercase tracking-wider">Análise</h4>
+                    <p class="text-xs text-gray-500"><strong>Técnico:</strong> <?= htmlspecialchars($atendimento['nome_analista'] ?? 'N/A') ?></p>
+                    <?php if (!empty($atendimento['descricao_analise'])): ?>
+                        <p class="text-sm text-gray-800 bg-amber-50 p-3 rounded-xl border border-amber-200">
                             <?= nl2br(htmlspecialchars($atendimento['descricao_analise'])) ?>
                         </p>
-                    </div>
-                <?php endif; ?>
+                    <?php endif; ?>
+                    <?php if (!empty($atendimento['latitude_analise']) && !empty($atendimento['longitude_analise'])): ?>
+                        <p class="text-xs text-gray-500">
+                            <strong>Local:</strong>
+                            <a href="https://www.google.com/maps?q=<?= $atendimento['latitude_analise'] ?>,<?= $atendimento['longitude_analise'] ?>" target="_blank" class="text-vivo-purple underline">
+                                <?= $atendimento['latitude_analise'] ?>, <?= $atendimento['longitude_analise'] ?>
+                            </a>
+                        </p>
+                    <?php endif; ?>
+                    <?php if (!empty($fotosAnaliseConcluida)): ?>
+                        <p class="text-xs font-semibold text-amber-600">Fotos - Análise:</p>
+                        <div class="grid grid-cols-2 gap-3">
+                            <?php foreach ($fotosAnaliseConcluida as $arq): ?>
+                                <div class="space-y-1">
+                                    <img src="/<?= htmlspecialchars($arq['caminho_arquivo']) ?>" class="w-full h-32 object-cover rounded-xl border border-amber-200 shadow-sm">
+                                    <p class="text-[10px] text-gray-400 text-right"><?= date('d/m/Y H:i', strtotime($arq['criado_em'])) ?></p>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                    <?php endif; ?>
+                </div>
 
-                <?php if (!empty($atendimento['descricao_execucao'])): ?>
-                    <div>
-                        <p class="text-xs font-semibold text-gray-400">Descrição da Execução:</p>
-                        <p class="text-sm text-gray-800 bg-gray-50 p-3 rounded-xl mt-1 border border-gray-100">
+                <div class="border-l-4 border-emerald-400 pl-4 space-y-2">
+                    <h4 class="text-xs font-bold text-emerald-700 uppercase tracking-wider">Execução</h4>
+                    <p class="text-xs text-gray-500"><strong>Técnico:</strong> <?= htmlspecialchars($atendimento['nome_executor'] ?? 'N/A') ?></p>
+                    <?php if (!empty($atendimento['descricao_execucao'])): ?>
+                        <p class="text-sm text-gray-800 bg-emerald-50 p-3 rounded-xl border border-emerald-200">
                             <?= nl2br(htmlspecialchars($atendimento['descricao_execucao'])) ?>
                         </p>
-                    </div>
-                <?php endif; ?>
+                    <?php endif; ?>
+                    <?php if (!empty($atendimento['latitude_execucao']) && !empty($atendimento['longitude_execucao'])): ?>
+                        <p class="text-xs text-gray-500">
+                            <strong>Local:</strong>
+                            <a href="https://www.google.com/maps?q=<?= $atendimento['latitude_execucao'] ?>,<?= $atendimento['longitude_execucao'] ?>" target="_blank" class="text-vivo-purple underline">
+                                <?= $atendimento['latitude_execucao'] ?>, <?= $atendimento['longitude_execucao'] ?>
+                            </a>
+                        </p>
+                    <?php endif; ?>
+                    <?php if (!empty($fotosExecucaoConcluida)): ?>
+                        <p class="text-xs font-semibold text-emerald-600">Fotos - Execução:</p>
+                        <div class="grid grid-cols-2 gap-3">
+                            <?php foreach ($fotosExecucaoConcluida as $arq): ?>
+                                <div class="space-y-1">
+                                    <img src="/<?= htmlspecialchars($arq['caminho_arquivo']) ?>" class="w-full h-32 object-cover rounded-xl border border-emerald-200 shadow-sm">
+                                    <p class="text-[10px] text-gray-400 text-right"><?= date('d/m/Y H:i', strtotime($arq['criado_em'])) ?></p>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                    <?php endif; ?>
+                </div>
+
             <?php else: ?>
                 <p class="text-sm text-gray-800 bg-gray-50 p-3 rounded-xl border border-gray-100">
                     <?= nl2br(htmlspecialchars($p['observacao_abertura'] ?? 'Nenhuma descrição registrada.')) ?>
                 </p>
-            <?php endif; ?>
-
-            <?php if (!empty($arquivosAtendimento)): ?>
-                <div>
-                    <p class="text-xs font-semibold text-gray-400 mb-2">Evidências:</p>
-                    <div class="grid grid-cols-1 gap-3">
-                        <?php foreach ($arquivosAtendimento as $arq): ?>
-                            <div>
-                                <div class="flex gap-2 mb-1">
-                                    <span class="text-[10px] uppercase font-bold px-2 py-0.5 rounded-full <?= $arq['tipo'] === 'analise' ? 'bg-indigo-50 text-indigo-700' : 'bg-blue-50 text-blue-700' ?>"><?= htmlspecialchars($arq['tipo']) ?></span>
-                                    <span class="text-[10px] uppercase font-bold px-2 py-0.5 rounded-full <?= $arq['momento'] === 'antes' ? 'bg-amber-50 text-amber-700' : 'bg-emerald-50 text-emerald-700' ?>"><?= htmlspecialchars($arq['momento']) ?></span>
-                                </div>
-                                <img src="/<?= htmlspecialchars($arq['caminho_arquivo']) ?>" class="mx-auto block w-auto max-h-[300px] rounded-xl border border-gray-200 shadow-sm">
-                                <p class="text-[10px] text-gray-400 text-right mt-1"><?= date('d/m/Y H:i', strtotime($arq['criado_em'])) ?></p>
-                            </div>
-                        <?php endforeach; ?>
-                    </div>
-                </div>
             <?php endif; ?>
         </div>
     <?php endif; ?>
