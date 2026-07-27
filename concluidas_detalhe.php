@@ -70,73 +70,73 @@ $arquivos = $stmtArquivos->fetchAll();
     </div>
 
     <div class="text-xs text-gray-500 space-y-1 border-t border-gray-100 pt-3">
-      <p><strong>Analista:</strong> <?= htmlspecialchars($p['nome_analista'] ?? 'N/A') ?></p>
-      <p><strong>Executor:</strong> <?= htmlspecialchars($p['nome_executor'] ?? 'N/A') ?></p>
       <p><strong>GPON:</strong> <?= htmlspecialchars($p['gpon']) ?></p>
       <p><strong>Splitter:</strong> <?= htmlspecialchars($p['splitter']) ?></p>
       <p><strong>Localidade:</strong> <?= htmlspecialchars($p['localidade']) ?></p>
       <p><strong>UF:</strong> <?= htmlspecialchars($p['uf']) ?></p>
-      <?php if (!empty($p['latitude_analise']) && !empty($p['longitude_analise'])): ?>
-          <p><strong>Local (Análise):</strong>
-              <a href="https://www.google.com/maps?q=<?= $p['latitude_analise'] ?>,<?= $p['longitude_analise'] ?>" target="_blank" class="text-vivo-purple underline">
-                  <?= $p['latitude_analise'] ?>, <?= $p['longitude_analise'] ?>
-              </a>
-          </p>
-      <?php endif; ?>
-      <?php if (!empty($p['latitude_execucao']) && !empty($p['longitude_execucao'])): ?>
-          <p><strong>Local (Execução):</strong>
-              <a href="https://www.google.com/maps?q=<?= $p['latitude_execucao'] ?>,<?= $p['longitude_execucao'] ?>" target="_blank" class="text-vivo-purple underline">
-                  <?= $p['latitude_execucao'] ?>, <?= $p['longitude_execucao'] ?>
-              </a>
-          </p>
-      <?php endif; ?>
     </div>
   </div>
 
-  <?php if (!empty($p['descricao_analise'])): ?>
-  <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-3">
-    <h3 class="text-sm font-bold text-vivo-purple">Descrição da Análise</h3>
-    <div class="text-sm text-gray-700 leading-relaxed bg-gray-50 rounded-xl p-4 border border-gray-100">
-      <?= nl2br(htmlspecialchars($p['descricao_analise'])) ?>
-    </div>
-  </div>
-  <?php endif; ?>
+  <?php
+    $fotosAnaliseConcluida = array_filter($arquivos, fn($f) => $f['tipo'] === 'analise');
+    $fotosExecucaoConcluida = array_filter($arquivos, fn($f) => $f['tipo'] === 'execucao');
+  ?>
 
-  <?php if (!empty($p['descricao_execucao'])): ?>
-  <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-3">
-    <h3 class="text-sm font-bold text-vivo-purple">Descrição da Execução</h3>
-    <div class="text-sm text-gray-700 leading-relaxed bg-gray-50 rounded-xl p-4 border border-gray-100">
-      <?= nl2br(htmlspecialchars($p['descricao_execucao'])) ?>
-    </div>
-  </div>
-  <?php endif; ?>
-
-  <?php if (!empty($arquivos)): ?>
-  <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-4">
-    <div class="flex items-center justify-between">
-      <h3 class="text-sm font-bold text-vivo-purple">Evidências</h3>
-      <span class="text-xs text-gray-400"><?= count($arquivos) ?> arquivo(s)</span>
-    </div>
-    <div class="grid grid-cols-1 gap-4">
-      <?php foreach ($arquivos as $arq): ?>
-        <div>
-          <div class="flex gap-2 mb-1">
-            <?php if (!empty($arq['tipo'])): ?>
-              <span class="text-[10px] uppercase font-bold px-2 py-0.5 rounded-full <?= $arq['tipo'] === 'analise' ? 'bg-indigo-50 text-indigo-700' : 'bg-blue-50 text-blue-700' ?>"><?= htmlspecialchars($arq['tipo']) ?></span>
-            <?php endif; ?>
-            <?php if (!empty($arq['momento'])): ?>
-              <span class="text-[10px] uppercase font-bold px-2 py-0.5 rounded-full <?= $arq['momento'] === 'antes' ? 'bg-amber-50 text-amber-700' : 'bg-emerald-50 text-emerald-700' ?>"><?= htmlspecialchars($arq['momento']) ?></span>
-            <?php endif; ?>
+  <div class="border-l-4 border-amber-400 pl-4 space-y-2 bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
+    <h4 class="text-xs font-bold text-amber-700 uppercase tracking-wider">Análise</h4>
+    <p class="text-xs text-gray-500"><strong>Técnico:</strong> <?= htmlspecialchars($p['nome_analista'] ?? 'N/A') ?></p>
+    <?php if (!empty($p['descricao_analise'])): ?>
+      <p class="text-sm text-gray-800 bg-amber-50 p-3 rounded-xl border border-amber-200">
+        <?= nl2br(htmlspecialchars($p['descricao_analise'])) ?>
+      </p>
+    <?php endif; ?>
+    <?php if (!empty($p['latitude_analise']) && !empty($p['longitude_analise'])): ?>
+      <a href="https://www.google.com/maps?q=<?= $p['latitude_analise'] ?>,<?= $p['longitude_analise'] ?>" target="_blank" class="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-bold text-amber-700 bg-amber-50 border border-amber-200 rounded-lg hover:bg-amber-100 transition w-fit">
+        <i data-lucide="map-pin" class="w-3 h-3"></i>Local
+      </a>
+    <?php endif; ?>
+    <?php if (!empty($fotosAnaliseConcluida)): ?>
+      <p class="text-xs font-semibold text-amber-600">Fotos - Análise:</p>
+      <div class="grid grid-cols-2 gap-3">
+        <?php foreach ($fotosAnaliseConcluida as $arq): ?>
+          <div class="space-y-1">
+            <a href="/<?= htmlspecialchars($arq['caminho_arquivo']) ?>" target="_blank">
+              <img src="/<?= htmlspecialchars($arq['caminho_arquivo']) ?>" class="w-full h-32 object-cover rounded-xl border border-amber-200 shadow-sm hover:opacity-90 transition">
+            </a>
+            <p class="text-[10px] text-gray-400 text-right"><?= date('d/m/Y H:i', strtotime($arq['criado_em'])) ?></p>
           </div>
-          <a href="/<?= htmlspecialchars($arq['caminho_arquivo']) ?>" target="_blank">
-            <img src="/<?= htmlspecialchars($arq['caminho_arquivo']) ?>" alt="Foto" class="w-full h-[220px] object-cover rounded-xl border border-gray-200 shadow-sm hover:opacity-90 transition">
-          </a>
-          <p class="text-[10px] text-gray-400 text-right mt-1"><?= date('d/m/Y H:i', strtotime($arq['criado_em'])) ?></p>
-        </div>
-      <?php endforeach; ?>
-    </div>
+        <?php endforeach; ?>
+      </div>
+    <?php endif; ?>
   </div>
-  <?php endif; ?>
+
+  <div class="border-l-4 border-emerald-400 pl-4 space-y-2 bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
+    <h4 class="text-xs font-bold text-emerald-700 uppercase tracking-wider">Execução</h4>
+    <p class="text-xs text-gray-500"><strong>Técnico:</strong> <?= htmlspecialchars($p['nome_executor'] ?? 'N/A') ?></p>
+    <?php if (!empty($p['descricao_execucao'])): ?>
+      <p class="text-sm text-gray-800 bg-emerald-50 p-3 rounded-xl border border-emerald-200">
+        <?= nl2br(htmlspecialchars($p['descricao_execucao'])) ?>
+      </p>
+    <?php endif; ?>
+    <?php if (!empty($p['latitude_execucao']) && !empty($p['longitude_execucao'])): ?>
+      <a href="https://www.google.com/maps?q=<?= $p['latitude_execucao'] ?>,<?= $p['longitude_execucao'] ?>" target="_blank" class="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-lg hover:bg-emerald-100 transition w-fit">
+        <i data-lucide="map-pin" class="w-3 h-3"></i>Local
+      </a>
+    <?php endif; ?>
+    <?php if (!empty($fotosExecucaoConcluida)): ?>
+      <p class="text-xs font-semibold text-emerald-600">Fotos - Execução:</p>
+      <div class="grid grid-cols-2 gap-3">
+        <?php foreach ($fotosExecucaoConcluida as $arq): ?>
+          <div class="space-y-1">
+            <a href="/<?= htmlspecialchars($arq['caminho_arquivo']) ?>" target="_blank">
+              <img src="/<?= htmlspecialchars($arq['caminho_arquivo']) ?>" class="w-full h-32 object-cover rounded-xl border border-emerald-200 shadow-sm hover:opacity-90 transition">
+            </a>
+            <p class="text-[10px] text-gray-400 text-right"><?= date('d/m/Y H:i', strtotime($arq['criado_em'])) ?></p>
+          </div>
+        <?php endforeach; ?>
+      </div>
+    <?php endif; ?>
+  </div>
 
 </main>
 
