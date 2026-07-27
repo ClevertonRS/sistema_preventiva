@@ -25,7 +25,7 @@ try {
         "SELECT p.id, p.gpon, p.splitter, p.uf, p.localidade, p.status, p.prioridade, p.criado_em, a.status AS atendimento_status
          FROM preventivas_rede p
          JOIN atendimentos a ON a.preventiva_id = p.id
-         WHERE a.status = 'revisao'
+         WHERE a.status = 'analise'
          ORDER BY p.criado_em DESC"
     );
     $tasks = $stmtTasks->fetchAll();

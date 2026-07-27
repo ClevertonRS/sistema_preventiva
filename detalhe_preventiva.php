@@ -207,11 +207,11 @@ setTimeout(function() {
         </form>
 
     <?php elseif ($p['status'] === 'em_atendimento' && $atendimento): ?>
-        <?php if ($atendimento['status'] === 'analise' && $isAnalista): ?>
+        <?php if ($atendimento['status'] === 'analise'): ?>
             <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-4">
-                <h3 class="text-sm font-bold text-vivo-purple">Análise Realizada</h3>
-                <div class="text-sm text-gray-700 leading-relaxed bg-gray-50 rounded-xl p-4 border border-gray-100">
-                    <?= nl2br(htmlspecialchars($atendimento['descricao_analise'] ?? 'Nenhuma descrição.')) ?>
+                <div class="bg-amber-50 p-4 rounded-xl text-sm text-amber-800 border border-amber-200">
+                    <strong>Análise realizada por:</strong> <?= htmlspecialchars($atendimento['nome_analista']) ?>
+                    <p class="mt-1"><?= nl2br(htmlspecialchars($atendimento['descricao_analise'] ?? '')) ?></p>
                 </div>
 
                 <?php $fotosAnalise = array_filter($arquivosAtendimento, fn($f) => $f['tipo'] === 'analise'); ?>
@@ -274,74 +274,7 @@ setTimeout(function() {
                 </form>
             </div>
 
-        <?php elseif ($atendimento['status'] === 'analise' && !$isAnalista && !$isExecutor): ?>
-            <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-4">
-                <div class="bg-blue-50 p-4 rounded-xl text-sm text-blue-800 border border-blue-200">
-                    <strong>Análise realizada por:</strong> <?= htmlspecialchars($atendimento['nome_analista']) ?>
-                    <p class="mt-1"><?= nl2br(htmlspecialchars($atendimento['descricao_analise'] ?? '')) ?></p>
-                </div>
-
-                <?php $fotosAnalise2 = array_filter($arquivosAtendimento, fn($f) => $f['tipo'] === 'analise'); ?>
-                <?php if (!empty($fotosAnalise2)): ?>
-                    <div>
-                        <p class="text-xs font-semibold text-gray-400 mb-2">Fotos da Análise:</p>
-                        <div class="grid grid-cols-2 gap-2">
-                            <?php foreach ($fotosAnalise2 as $arq): ?>
-                                <img src="/<?= htmlspecialchars($arq['caminho_arquivo']) ?>" class="rounded-xl border border-gray-200 h-32 object-cover w-full">
-                            <?php endforeach; ?>
-                        </div>
-                    </div>
-                <?php endif; ?>
-
-                <div id="location-status" class="bg-gray-50 p-3 rounded-xl border border-gray-100 space-y-2">
-                    <h3 class="text-xs font-bold text-vivo-dark uppercase tracking-wider">Sua Localização <span class="text-red-500">*</span></h3>
-                    <p class="text-xs text-gray-500" id="location-text5">Obtendo localização...</p>
-                    <button type="button" class="btn-atualizar-loc text-xs font-semibold text-vivo-purple hover:underline" data-lat="latitude5" data-lng="longitude5" data-text="location-text5">
-                        <i data-lucide="refresh-cw" class="w-3 h-3 inline"></i> Atualizar Localização
-                    </button>
-                </div>
-
-                <form action="/salvar-preventiva" method="POST" enctype="multipart/form-data" class="space-y-4 form-com-localizacao">
-                    <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
-                    <input type="hidden" name="preventiva_id" value="<?= $p['id'] ?>">
-                    <input type="hidden" name="atendimento_id" value="<?= $atendimento['id'] ?>">
-                    <input type="hidden" name="acao" value="assumir_execucao">
-                    <input type="hidden" name="latitude" id="latitude5" value="">
-                    <input type="hidden" name="longitude" id="longitude5" value="">
-
-                    <div>
-                        <label class="block text-xs font-bold text-vivo-dark uppercase tracking-wider mb-2">Descrição da Execução <span class="text-red-500">*</span></label>
-                        <textarea name="descricao_execucao" rows="4" required placeholder="Descreva o que foi realizado..." class="w-full p-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-vivo-purple text-sm bg-gray-50"></textarea>
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-bold text-vivo-dark uppercase tracking-wider mb-2">Fotos - Depois do Serviço <span class="text-gray-400 font-normal">(opcional)</span></label>
-                        <div class="flex gap-2 mb-2">
-                            <button type="button" class="flex-1 bg-vivo-purple text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center justify-center gap-1" onclick="document.getElementById('foto-assumir2-camera').click()">
-                                <i data-lucide="camera" class="w-4 h-4"></i>Câmera
-                            </button>
-                            <button type="button" class="flex-1 bg-gray-200 text-gray-800 px-4 py-2 rounded-lg text-sm font-bold flex items-center justify-center gap-1" onclick="document.getElementById('foto-assumir2-galeria').click()">
-                                <i data-lucide="image" class="w-4 h-4"></i>Galeria
-                            </button>
-                        </div>
-                        <input type="file" id="foto-assumir2-camera" accept="image/*" capture="environment" multiple style="position:fixed;top:-100px;left:-100px;opacity:0;width:1px;height:1px;pointer-events:none">
-                        <input type="file" id="foto-assumir2-galeria" accept="image/*" multiple style="position:fixed;top:-100px;left:-100px;opacity:0;width:1px;height:1px;pointer-events:none">
-                        <input type="file" id="foto-assumir2-submit" name="foto_depois[]" multiple class="hidden">
-                        <div id="foto-preview-assumir2" class="grid grid-cols-2 gap-3 mt-4"></div>
-                    </div>
-
-                    <div id="erro-localizacao-assumir2" class="hidden bg-red-50 border border-red-200 text-red-700 text-sm p-4 rounded-xl flex items-center gap-3">
-                        <i data-lucide="map-pin-off" class="w-5 h-5 shrink-0"></i>
-                        <span>Ative a localização e clique em "Atualizar Localização" antes de enviar.</span>
-                    </div>
-
-                    <button type="submit" class="w-full bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white font-bold py-4 rounded-xl shadow-lg shadow-blue-200 hover:shadow-xl transition-all duration-300 text-sm uppercase tracking-wider">
-                        <i data-lucide="send" class="w-5 h-5 inline"></i> Assumir Execução
-                    </button>
-                </form>
-            </div>
-
-        <?php elseif ($atendimento['status'] === 'revisao' && ($isAnalista || $isExecutor)): ?>
+        <?php elseif ($atendimento['status'] === 'revisao'): ?>
             <div id="location-status" class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-2">
                 <h3 class="text-xs font-bold text-vivo-dark uppercase tracking-wider">Sua Localização <span class="text-red-500">*</span></h3>
                 <p class="text-xs text-gray-500 bg-gray-50 p-3 rounded-xl border border-gray-100" id="location-text4">Obtendo localização...</p>
@@ -407,11 +340,6 @@ setTimeout(function() {
                     <i data-lucide="refresh-cw" class="w-5 h-5 inline"></i> Reenviar para Análise
                 </button>
             </form>
-
-        <?php else: ?>
-            <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 text-center text-gray-500 text-sm">
-                Esta preventiva está em atendimento por outro técnico.
-            </div>
         <?php endif; ?>
 
 
