@@ -105,20 +105,7 @@ setTimeout(function() {
             <p><strong>UF:</strong> <?= htmlspecialchars($p['uf']) ?></p>
             <p><strong>Localidade:</strong> <?= htmlspecialchars($p['localidade']) ?></p>
             <p><strong>Prioridade:</strong> <?= htmlspecialchars($p['prioridade']) ?></p>
-            <?php if ($atendimento && !empty($atendimento['latitude_analise']) && !empty($atendimento['longitude_analise'])): ?>
-                <p><strong>Local (Análise):</strong>
-                    <a href="https://www.google.com/maps?q=<?= $atendimento['latitude_analise'] ?>,<?= $atendimento['longitude_analise'] ?>" target="_blank" class="text-vivo-purple underline text-xs">
-                        <?= $atendimento['latitude_analise'] ?>, <?= $atendimento['longitude_analise'] ?>
-                    </a>
-                </p>
-            <?php endif; ?>
-            <?php if ($atendimento && !empty($atendimento['latitude_execucao']) && !empty($atendimento['longitude_execucao'])): ?>
-                <p><strong>Local (Execução):</strong>
-                    <a href="https://www.google.com/maps?q=<?= $atendimento['latitude_execucao'] ?>,<?= $atendimento['longitude_execucao'] ?>" target="_blank" class="text-vivo-purple underline text-xs">
-                        <?= $atendimento['latitude_execucao'] ?>, <?= $atendimento['longitude_execucao'] ?>
-                    </a>
-                </p>
-            <?php endif; ?>
+
             <p><strong>Status:</strong>
                 <span class="font-bold <?= $p['status'] === 'aberta' ? 'text-amber-600' : ($p['status'] === 'concluida' ? 'text-emerald-600' : 'text-blue-600') ?>">
                     <?= htmlspecialchars($p['status']) ?>
@@ -448,12 +435,9 @@ setTimeout(function() {
                         </p>
                     <?php endif; ?>
                     <?php if (!empty($atendimento['latitude_analise']) && !empty($atendimento['longitude_analise'])): ?>
-                        <p class="text-xs text-gray-500">
-                            <strong>Local:</strong>
-                            <a href="https://www.google.com/maps?q=<?= $atendimento['latitude_analise'] ?>,<?= $atendimento['longitude_analise'] ?>" target="_blank" class="text-vivo-purple underline">
-                                <?= $atendimento['latitude_analise'] ?>, <?= $atendimento['longitude_analise'] ?>
-                            </a>
-                        </p>
+                        <a href="https://www.google.com/maps?q=<?= $atendimento['latitude_analise'] ?>,<?= $atendimento['longitude_analise'] ?>" target="_blank" class="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-bold text-amber-700 bg-amber-50 border border-amber-200 rounded-lg hover:bg-amber-100 transition w-fit">
+                            <i data-lucide="map-pin" class="w-3 h-3"></i>Local
+                        </a>
                     <?php endif; ?>
                     <?php if (!empty($fotosAnaliseConcluida)): ?>
                         <p class="text-xs font-semibold text-amber-600">Fotos - Análise:</p>
@@ -477,12 +461,9 @@ setTimeout(function() {
                         </p>
                     <?php endif; ?>
                     <?php if (!empty($atendimento['latitude_execucao']) && !empty($atendimento['longitude_execucao'])): ?>
-                        <p class="text-xs text-gray-500">
-                            <strong>Local:</strong>
-                            <a href="https://www.google.com/maps?q=<?= $atendimento['latitude_execucao'] ?>,<?= $atendimento['longitude_execucao'] ?>" target="_blank" class="text-vivo-purple underline">
-                                <?= $atendimento['latitude_execucao'] ?>, <?= $atendimento['longitude_execucao'] ?>
-                            </a>
-                        </p>
+                        <a href="https://www.google.com/maps?q=<?= $atendimento['latitude_execucao'] ?>,<?= $atendimento['longitude_execucao'] ?>" target="_blank" class="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-lg hover:bg-emerald-100 transition w-fit">
+                            <i data-lucide="map-pin" class="w-3 h-3"></i>Local
+                        </a>
                     <?php endif; ?>
                     <?php if (!empty($fotosExecucaoConcluida)): ?>
                         <p class="text-xs font-semibold text-emerald-600">Fotos - Execução:</p>
