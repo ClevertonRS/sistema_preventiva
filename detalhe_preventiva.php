@@ -118,93 +118,127 @@ setTimeout(function() {
         </div>
     </div>
 
-    <?php if ($p['status'] === 'aberta'): ?>
+<?php if ($p['status'] === 'aberta'): ?>
+        <?php
+        // Verifica se já existe atendimento com análise salva
+        $temAnaliseSalva = $atendimento && !empty($atendimento['descricao_analise']);
+        $acaoForm = $temAnaliseSalva ? 'finalizar_execucao' : 'iniciar_analise';
+        $btnTexto = $temAnaliseSalva ? 'Finalizar Execução' : 'Salvar Análise e Iniciar Execução';
+        ?>
+
         <div id="location-status" class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-2">
-            <h3 class="text-xs font-bold text-vivo-dark uppercase tracking-wider">Sua Localização <span id="loc-obrigatorio" class="text-red-500">*</span></h3>
+            <h3 class="text-xs font-bold text-vivo-dark uppercase tracking-wider">Sua Localização <span class="text-red-500">*</span></h3>
             <p class="text-xs text-gray-500 bg-gray-50 p-3 rounded-xl border border-gray-100" id="location-text">Obtendo localização...</p>
             <button type="button" id="btn-atualizar-localizacao" class="w-full text-xs font-semibold text-vivo-purple bg-vivo-purpleLight py-2 rounded-lg hover:bg-vivo-purple/10 transition flex items-center justify-center gap-1">
                 <i data-lucide="refresh-cw" class="w-3 h-3"></i> Atualizar Localização
             </button>
         </div>
 
-        <form id="form-aberta" action="/salvar-preventiva" method="POST" enctype="multipart/form-data" class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-4">
-            <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
-            <input type="hidden" name="preventiva_id" value="<?= $p['id'] ?>">
-            <input type="hidden" name="latitude" id="latitude" value="">
-            <input type="hidden" name="longitude" id="longitude" value="">
+        <?php if ($temAnaliseSalva): ?>
+            <!-- ANÁLISE JÁ SALVA - Mostrar read-only + formulário de execução -->
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-4">
+                <div class="bg-amber-50 p-4 rounded-xl text-sm text-amber-800 border border-amber-200">
+                    <div class="flex items-center justify-between mb-2">
+                        <strong>Análise realizada por:</strong> <?= htmlspecialchars($atendimento['nome_analista']) ?>
+                        <span class="text-[10px] uppercase font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-700">Salva</span>
+                    </div>
+                    <p class="mt-1"><?= nl2br(htmlspecialchars($atendimento['descricao_analise'] ?? '')) ?></p>
+                </div>
 
-            <div>
-                <label class="block text-xs font-bold text-vivo-dark uppercase tracking-wider mb-2">Tipo de Atendimento</label>
-                <div class="flex gap-3">
-                    <label class="flex-1 flex items-center gap-2 p-3 border rounded-xl cursor-pointer has-[:checked]:bg-vivo-purpleLight has-[:checked]:border-vivo-purple bg-gray-50 border-gray-200">
-                        <input type="radio" name="modo_atendimento" value="completo" checked class="accent-vivo-purple">
-                        <div>
-                            <span class="text-sm font-bold text-gray-800">Completo</span>
-                            <p class="text-[10px] text-gray-500">Análise + Execução</p>
+                <?php $fotosAnalise = array_filter($arquivosAtendimento, fn($f) => $f['tipo'] === 'analise'); ?>
+                <?php if (!empty($fotosAnalise)): ?>
+                    <div>
+                        <p class="text-xs font-semibold text-gray-400 mb-2">Fotos da Análise:</p>
+                        <div class="grid grid-cols-2 gap-2">
+                            <?php foreach ($fotosAnalise as $arq): ?>
+                                <img src="/<?= htmlspecialchars($arq['caminho_arquivo']) ?>" class="rounded-xl border border-gray-200 h-32 object-cover w-full">
+                            <?php endforeach; ?>
                         </div>
-                    </label>
-                    <label class="flex-1 flex items-center gap-2 p-3 border rounded-xl cursor-pointer has-[:checked]:bg-vivo-purpleLight has-[:checked]:border-vivo-purple bg-gray-50 border-gray-200">
-                        <input type="radio" name="modo_atendimento" value="analise" class="accent-vivo-purple">
-                        <div>
-                            <span class="text-sm font-bold text-gray-800">Apenas Análise</span>
-                            <p class="text-[10px] text-gray-500">Outro técnico executa</p>
-                        </div>
-                    </label>
+                    </div>
+                <?php endif; ?>
+            </div>
+
+            <!-- FORMULÁRIO DE EXECUÇÃO -->
+            <form action="/salvar-preventiva" method="POST" enctype="multipart/form-data" class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-4 form-com-localizacao">
+                <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
+                <input type="hidden" name="preventiva_id" value="<?= $p['id'] ?>">
+                <input type="hidden" name="atendimento_id" value="<?= $atendimento['id'] ?>">
+                <input type="hidden" name="acao" value="finalizar_execucao">
+                <input type="hidden" name="latitude" id="latitude2" value="">
+                <input type="hidden" name="longitude" id="longitude2" value="">
+
+                <div>
+                    <label class="block text-xs font-bold text-vivo-dark uppercase tracking-wider mb-2">Descrição da Execução <span class="text-red-500">*</span></label>
+                    <textarea name="descricao_execucao" rows="4" required placeholder="Descreva o que foi realizado..." class="w-full p-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-vivo-purple text-sm bg-gray-50"></textarea>
                 </div>
-            </div>
 
-            <div>
-                <label class="block text-xs font-bold text-vivo-dark uppercase tracking-wider mb-2">Descrição da Análise <span class="text-red-500">*</span></label>
-                <textarea name="descricao_analise" rows="3" required placeholder="Descreva o problema identificado..." class="w-full p-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-vivo-purple text-sm bg-gray-50"></textarea>
-            </div>
-
-            <div id="campo-descricao-execucao">
-                <label class="block text-xs font-bold text-vivo-dark uppercase tracking-wider mb-2">Descrição da Execução <span class="text-red-500">*</span></label>
-                <textarea name="descricao_execucao" rows="3" required placeholder="Descreva o que foi realizado..." class="w-full p-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-vivo-purple text-sm bg-gray-50"></textarea>
-            </div>
-
-            <div id="fotos-antes-section">
-                <label class="block text-xs font-bold text-vivo-dark uppercase tracking-wider mb-2">Fotos - Antes do Serviço <span class="text-gray-400 font-normal">(opcional)</span></label>
-                <div class="flex gap-2 mb-2">
-                    <button type="button" class="flex-1 bg-vivo-purple text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center justify-center gap-1" onclick="document.getElementById('foto-antes-camera').click()">
-                        <i data-lucide="camera" class="w-4 h-4"></i>Câmera
-                    </button>
-                    <button type="button" class="flex-1 bg-gray-200 text-gray-800 px-4 py-2 rounded-lg text-sm font-bold flex items-center justify-center gap-1" onclick="document.getElementById('foto-antes-galeria').click()">
-                        <i data-lucide="image" class="w-4 h-4"></i>Galeria
-                    </button>
+                <div>
+                    <label class="block text-xs font-bold text-vivo-dark uppercase tracking-wider mb-2">Fotos - Depois do Serviço <span class="text-gray-400 font-normal">(opcional)</span></label>
+                    <div class="flex gap-2 mb-2">
+                        <button type="button" class="flex-1 bg-vivo-purple text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center justify-center gap-1" onclick="document.getElementById('foto-assumir-camera').click()">
+                            <i data-lucide="camera" class="w-4 h-4"></i>Câmera
+                        </button>
+                        <button type="button" class="flex-1 bg-gray-200 text-gray-800 px-4 py-2 rounded-lg text-sm font-bold flex items-center justify-center gap-1" onclick="document.getElementById('foto-assumir-galeria').click()">
+                            <i data-lucide="image" class="w-4 h-4"></i>Galeria
+                        </button>
+                    </div>
+                    <input type="file" id="foto-assumir-camera" accept="image/*" capture="environment" multiple style="position:fixed;top:-100px;left:-100px;opacity:0;width:1px;height:1px;pointer-events:none">
+                    <input type="file" id="foto-assumir-galeria" accept="image/*" multiple style="position:fixed;top:-100px;left:-100px;opacity:0;width:1px;height:1px;pointer-events:none">
+                    <input type="file" id="foto-assumir-submit" name="foto_depois[]" multiple class="hidden">
+                    <div id="foto-preview-assumir" class="grid grid-cols-2 gap-3 mt-4"></div>
                 </div>
-                <input type="file" id="foto-antes-camera" accept="image/*" capture="environment" multiple style="position:fixed;top:-100px;left:-100px;opacity:0;width:1px;height:1px;pointer-events:none">
-                <input type="file" id="foto-antes-galeria" accept="image/*" multiple style="position:fixed;top:-100px;left:-100px;opacity:0;width:1px;height:1px;pointer-events:none">
-                <input type="file" id="foto-antes-submit" name="foto_antes[]" multiple class="hidden">
-                <div id="foto-preview-antes" class="grid grid-cols-2 gap-3 mt-4"></div>
-            </div>
 
-            <div id="fotos-depois-section">
-                <label class="block text-xs font-bold text-vivo-dark uppercase tracking-wider mb-2">Fotos - Depois do Serviço <span class="text-gray-400 font-normal">(opcional)</span></label>
-                <div class="flex gap-2 mb-2">
-                    <button type="button" class="flex-1 bg-vivo-purple text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center justify-center gap-1" onclick="document.getElementById('foto-depois-camera').click()">
-                        <i data-lucide="camera" class="w-4 h-4"></i>Câmera
-                    </button>
-                    <button type="button" class="flex-1 bg-gray-200 text-gray-800 px-4 py-2 rounded-lg text-sm font-bold flex items-center justify-center gap-1" onclick="document.getElementById('foto-depois-galeria').click()">
-                        <i data-lucide="image" class="w-4 h-4"></i>Galeria
-                    </button>
+                <div id="erro-localizacao-assumir" class="hidden bg-red-50 border border-red-200 text-red-700 text-sm p-4 rounded-xl flex items-center gap-3">
+                    <i data-lucide="map-pin-off" class="w-5 h-5 shrink-0"></i>
+                    <span>Ative a localização e clique em "Atualizar Localização" antes de enviar.</span>
                 </div>
-                <input type="file" id="foto-depois-camera" accept="image/*" capture="environment" multiple style="position:fixed;top:-100px;left:-100px;opacity:0;width:1px;height:1px;pointer-events:none">
-                <input type="file" id="foto-depois-galeria" accept="image/*" multiple style="position:fixed;top:-100px;left:-100px;opacity:0;width:1px;height:1px;pointer-events:none">
-                <input type="file" id="foto-depois-submit" name="foto_depois[]" multiple class="hidden">
-                <div id="foto-preview-depois" class="grid grid-cols-2 gap-3 mt-4"></div>
-            </div>
 
-            <div id="erro-localizacao-form" class="hidden bg-red-50 border border-red-200 text-red-700 text-sm p-4 rounded-xl flex items-center gap-3">
-                <i data-lucide="map-pin-off" class="w-5 h-5 shrink-0"></i>
-                <span>Ative a localização e clique em "Atualizar Localização" antes de enviar.</span>
-            </div>
+                <button type="submit" class="w-full bg-gradient-to-r from-vivo-purple to-purple-700 hover:from-vivo-purpleDark hover:to-purple-900 text-white font-bold py-4 rounded-xl shadow-lg shadow-purple-200 hover:shadow-xl transition-all duration-300 text-sm uppercase tracking-wider">
+                    <i data-lucide="send" class="w-5 h-5 inline"></i> <?= $btnTexto ?>
+                </button>
+            </form>
 
-            <button type="submit" class="w-full bg-gradient-to-r from-vivo-purple to-purple-700 hover:from-vivo-purpleDark hover:to-purple-900 text-white font-bold py-4 rounded-xl shadow-lg shadow-purple-200 hover:shadow-xl transition-all duration-300 text-sm uppercase tracking-wider flex items-center justify-center gap-2">
-                <i data-lucide="send" class="w-5 h-5"></i>
-                <span id="btn-texto">Aceitar e Finalizar</span>
-            </button>
-        </form>
+        <?php else: ?>
+            <!-- PRIMEIRA VEZ - Apenas formulário de ANÁLISE -->
+            <form id="form-aberta" action="/salvar-preventiva" method="POST" enctype="multipart/form-data" class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-4">
+                <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
+                <input type="hidden" name="preventiva_id" value="<?= $p['id'] ?>">
+                <input type="hidden" name="acao" value="iniciar_analise">
+                <input type="hidden" name="latitude" id="latitude" value="">
+                <input type="hidden" name="longitude" id="longitude" value="">
+
+                <div>
+                    <label class="block text-xs font-bold text-vivo-dark uppercase tracking-wider mb-2">Descrição da Análise <span class="text-red-500">*</span></label>
+                    <textarea name="descricao_analise" rows="3" required placeholder="Descreva o problema identificado..." class="w-full p-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-vivo-purple text-sm bg-gray-50"></textarea>
+                </div>
+
+                <div id="fotos-antes-section">
+                    <label class="block text-xs font-bold text-vivo-dark uppercase tracking-wider mb-2">Fotos - Antes do Serviço <span class="text-gray-400 font-normal">(opcional)</span></label>
+                    <div class="flex gap-2 mb-2">
+                        <button type="button" class="flex-1 bg-vivo-purple text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center justify-center gap-1" onclick="document.getElementById('foto-antes-camera').click()">
+                            <i data-lucide="camera" class="w-4 h-4"></i>Câmera
+                        </button>
+                        <button type="button" class="flex-1 bg-gray-200 text-gray-800 px-4 py-2 rounded-lg text-sm font-bold flex items-center justify-center gap-1" onclick="document.getElementById('foto-antes-galeria').click()">
+                            <i data-lucide="image" class="w-4 h-4"></i>Galeria
+                        </button>
+                    </div>
+                    <input type="file" id="foto-antes-camera" accept="image/*" capture="environment" multiple style="position:fixed;top:-100px;left:-100px;opacity:0;width:1px;height:1px;pointer-events:none">
+                    <input type="file" id="foto-antes-galeria" accept="image/*" multiple style="position:fixed;top:-100px;left:-100px;opacity:0;width:1px;height:1px;pointer-events:none">
+                    <input type="file" id="foto-antes-submit" name="foto_antes[]" multiple class="hidden">
+                    <div id="foto-preview-antes" class="grid grid-cols-2 gap-3 mt-4"></div>
+                </div>
+
+                <div id="erro-localizacao-form" class="hidden bg-red-50 border border-red-200 text-red-700 text-sm p-4 rounded-xl flex items-center gap-3">
+                    <i data-lucide="map-pin-off" class="w-5 h-5 shrink-0"></i>
+                    <span>Ative a localização e clique em "Atualizar Localização" antes de enviar.</span>
+                </div>
+
+                <button type="submit" class="w-full bg-gradient-to-r from-vivo-purple to-purple-700 hover:from-vivo-purpleDark hover:to-purple-900 text-white font-bold py-4 rounded-xl shadow-lg shadow-purple-200 hover:shadow-xl transition-all duration-300 text-sm uppercase tracking-wider flex items-center justify-center gap-2">
+                    <i data-lucide="send" class="w-5 h-5"></i>
+                    <span><?= $btnTexto ?></span>
+                </button>
+            </form>
+        <?php endif; ?>
 
     <?php elseif ($p['status'] === 'em_atendimento' && $atendimento): ?>
         <?php if ($atendimento['status'] === 'analise'): ?>
@@ -238,7 +272,7 @@ setTimeout(function() {
                     <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
                     <input type="hidden" name="preventiva_id" value="<?= $p['id'] ?>">
                     <input type="hidden" name="atendimento_id" value="<?= $atendimento['id'] ?>">
-                    <input type="hidden" name="acao" value="assumir_execucao">
+                    <input type="hidden" name="acao" value="finalizar_execucao">
                     <input type="hidden" name="latitude" id="latitude2" value="">
                     <input type="hidden" name="longitude" id="longitude2" value="">
 
@@ -269,7 +303,7 @@ setTimeout(function() {
                     </div>
 
                     <button type="submit" class="w-full bg-gradient-to-r from-vivo-purple to-purple-700 hover:from-vivo-purpleDark hover:to-purple-900 text-white font-bold py-4 rounded-xl shadow-lg shadow-purple-200 hover:shadow-xl transition-all duration-300 text-sm uppercase tracking-wider">
-                        <i data-lucide="send" class="w-5 h-5 inline"></i> Assumir e Finalizar Execução
+                        <i data-lucide="send" class="w-5 h-5 inline"></i> Finalizar Execução
                     </button>
                 </form>
             </div>
@@ -418,30 +452,6 @@ setTimeout(function() {
 
 <script>
   document.addEventListener('DOMContentLoaded', function () {
-    // ===== Toggle modo atendimento =====
-    var modoRadios = document.querySelectorAll('input[name="modo_atendimento"]');
-    var campoDescExec = document.getElementById('campo-descricao-execucao');
-    var fotosDepoisSection = document.getElementById('fotos-depois-section');
-    var btnTexto = document.getElementById('btn-texto');
-
-    function toggleModo() {
-      var isCompleto = document.querySelector('input[name="modo_atendimento"]:checked')?.value === 'completo';
-      if (campoDescExec) {
-        campoDescExec.classList.toggle('hidden', !isCompleto);
-        var ta = campoDescExec.querySelector('textarea');
-        if (ta) ta.required = isCompleto;
-      }
-      if (fotosDepoisSection) {
-        fotosDepoisSection.classList.toggle('hidden', !isCompleto);
-      }
-      if (btnTexto) btnTexto.textContent = isCompleto ? 'Aceitar e Finalizar' : 'Iniciar Análise';
-    }
-
-    if (modoRadios.length) {
-      modoRadios.forEach(function(r) { r.addEventListener('change', toggleModo); });
-      toggleModo();
-    }
-
     // ===== Geolocalização =====
     function obterLocalizacao(latId, lngId, textId) {
       return new Promise(function (resolve) {
@@ -535,6 +545,16 @@ setTimeout(function() {
     var formAberta = document.getElementById('form-aberta');
     if (formAberta) validarLocalizacao(formAberta, 'latitude', 'erro-localizacao-form');
 
+    var formExecucao = document.querySelector('form[action="/salvar-preventiva"] input[name="acao"][value="finalizar_execucao"]')?.closest('form');
+    if (formExecucao) {
+        var latInput = formExecucao.querySelector('input[name="latitude"]');
+        if (latInput) {
+            var latId = latInput.id;
+            var erroId = formExecucao.querySelector('[id^="erro-localizacao-"]')?.id;
+            if (erroId) validarLocalizacao(formExecucao, latId, erroId);
+        }
+    }
+
     document.querySelectorAll('.form-com-localizacao').forEach(function(form) {
       var latInput = form.querySelector('input[name="latitude"]');
       if (latInput) {
@@ -598,9 +618,7 @@ setTimeout(function() {
     }
 
     initFotoInput('foto-antes-camera', 'foto-antes-galeria', 'foto-antes-submit', 'foto-preview-antes');
-    initFotoInput('foto-depois-camera', 'foto-depois-galeria', 'foto-depois-submit', 'foto-preview-depois');
     initFotoInput('foto-assumir-camera', 'foto-assumir-galeria', 'foto-assumir-submit', 'foto-preview-assumir');
-    initFotoInput('foto-assumir2-camera', 'foto-assumir2-galeria', 'foto-assumir2-submit', 'foto-preview-assumir2');
     initFotoInput('foto-rev-camera', 'foto-rev-galeria', 'foto-rev-submit', 'foto-preview-rev');
   });
 </script>

@@ -133,6 +133,53 @@ elseif ($acao === 'aceitar_finalizar' && $prev['status'] === 'aberta') {
 }
 
 // ============================================================
+// AÇÃO: finalizar_execucao — Mesmo técnico finaliza a execução
+// ============================================================
+elseif ($acao === 'finalizar_execucao' && $atendimentoId) {
+    if (empty($descricaoExecucao)) {
+        header('Location: /preventiva/' . $preventivaId);
+        exit;
+    }
+
+    $stmt = $pdo->prepare("SELECT id, status, tecnico_analise_id, tecnico_execucao_id FROM atendimentos WHERE id = :id AND preventiva_id = :prev_id");
+    $stmt->execute([':id' => $atendimentoId, ':prev_id' => $preventivaId]);
+    $atend = $stmt->fetch();
+
+    if (!$atend || $atend['status'] !== 'analise') {
+        header('Location: /preventiva/' . $preventivaId);
+        exit;
+    }
+
+    try {
+        $pdo->beginTransaction();
+
+        $stmt = $pdo->prepare(
+            "UPDATE atendimentos SET tecnico_execucao_id = :tecnico_id, descricao_execucao = :descricao, status = 'concluido', concluido_em = NOW(), latitude_execucao = :lat_exec, longitude_execucao = :lng_exec
+             WHERE id = :id"
+        );
+        $stmt->execute([
+            ':tecnico_id' => $userId,
+            ':descricao' => $descricaoExecucao,
+            ':id' => $atendimentoId,
+            ':lat_exec' => $latitude,
+            ':lng_exec' => $longitude,
+        ]);
+
+        $pdo->prepare("UPDATE preventivas_rede SET status = 'concluida' WHERE id = :id")
+            ->execute([':id' => $preventivaId]);
+
+        salvarFotos($pdo, $preventivaId, $atendimentoId, $userId);
+
+        $pdo->commit();
+    } catch (Exception $e) {
+        $pdo->rollBack();
+        security_log('Erro ao finalizar execução', ['error' => $e->getMessage(), 'prev_id' => $preventivaId]);
+        header('Location: /preventiva/' . $preventivaId);
+        exit;
+    }
+}
+
+// ============================================================
 // AÇÃO: assumir_execucao — 2º técnico assume e finaliza
 // ============================================================
 elseif ($acao === 'assumir_execucao' && $atendimentoId) {
