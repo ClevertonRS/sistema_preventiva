@@ -1,0 +1,23 @@
+RewriteEngine On
+RewriteBase /
+
+# Se for arquivo ou pasta real (CSS, JS, fotos), abre direto
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+
+# Mapeamento de URLs Amigáveis
+RewriteRule ^login/?$ index.php [L,QSA]
+RewriteRule ^login-action/?$ login_action.php [L,QSA]
+RewriteRule ^dashboard/?$ dashboard.php [L,QSA]
+RewriteRule ^logout/?$ logout.php [L,QSA]
+RewriteRule ^preventivas/?$ preventivas.php [L,QSA]
+RewriteRule ^detalhe-preventiva/?$ detalhe_preventiva.php [L,QSA]
+RewriteRule ^preventiva/([0-9]+)/?$ detalhe_preventiva.php?id=$1 [L,QSA]
+RewriteRule ^triagem/?$ triagem.php [L,QSA]
+RewriteRule ^execucao/?$ execucao.php [L,QSA]
+RewriteRule ^execucao-detalhe/([0-9]+)/?$ execucao_detalhe.php?id=$1 [L,QSA]
+RewriteRule ^revisao/?$ revisao.php [L,QSA]
+RewriteRule ^revisao-detalhe/([0-9]+)/?$ revisao_detalhe.php?id=$1 [L,QSA]
+RewriteRule ^concluidas/?$ concluidas.php [L,QSA]
+RewriteRule ^concluidas-detalhe/([0-9]+)/?$ concluidas_detalhe.php?id=$1 [L,QSA]
+RewriteRule ^salvar-preventiva/?$ salvar_preventiva.php [L,QSA]
