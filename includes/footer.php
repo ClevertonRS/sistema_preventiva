@@ -21,7 +21,7 @@
       </a>
       <a href="/triagem" class="flex flex-col items-center justify-center w-16 shrink-0 <?= $currentBase === 'triagem' ? 'text-vivo-purple' : 'text-gray-400 hover:text-vivo-purple' ?>">
         <i data-lucide="list" class="w-5 h-5"></i>
-        <span class="text-[9px] mt-1 <?= $currentBase === 'triagem' ? 'font-bold' : 'font-medium' ?>">Abertas</span>
+        <span class="text-[9px] mt-1 <?= $currentBase === 'triagem' ? 'font-bold' : 'font-medium' ?>">Triagem</span>
       </a>
       <a href="/execucao" class="flex flex-col items-center justify-center w-16 shrink-0 <?= $currentBase === 'execucao' ? 'text-vivo-purple' : 'text-gray-400 hover:text-vivo-purple' ?>">
         <i data-lucide="play-circle" class="w-5 h-5"></i>

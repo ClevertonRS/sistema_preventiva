@@ -95,7 +95,7 @@ if (!headers_sent()) {
 
           <nav class="hidden md:flex space-x-1">
             <a href="/dashboard" class="px-4 py-2 rounded-lg text-sm transition-all <?= $currentBase === 'dashboard' ? 'font-semibold bg-vivo-purple text-white shadow-sm' : 'font-medium text-gray-600 hover:text-vivo-purple hover:bg-vivo-purpleLight' ?>">Início</a>
-            <a href="/triagem" class="px-4 py-2 rounded-lg text-sm transition-all <?= $currentBase === 'triagem' ? 'font-semibold bg-vivo-purple text-white shadow-sm' : 'font-medium text-gray-600 hover:text-vivo-purple hover:bg-vivo-purpleLight' ?>">Abertas</a>
+            <a href="/triagem" class="px-4 py-2 rounded-lg text-sm transition-all <?= $currentBase === 'triagem' ? 'font-semibold bg-vivo-purple text-white shadow-sm' : 'font-medium text-gray-600 hover:text-vivo-purple hover:bg-vivo-purpleLight' ?>">Triagem</a>
             <a href="/execucao" class="px-4 py-2 rounded-lg text-sm transition-all <?= $currentBase === 'execucao' ? 'font-semibold bg-vivo-purple text-white shadow-sm' : 'font-medium text-gray-600 hover:text-vivo-purple hover:bg-vivo-purpleLight' ?>">Em Andamento</a>
             <a href="/revisao" class="px-4 py-2 rounded-lg text-sm transition-all <?= $currentBase === 'revisao' ? 'font-semibold bg-vivo-purple text-white shadow-sm' : 'font-medium text-gray-600 hover:text-vivo-purple hover:bg-vivo-purpleLight' ?>">Revisão</a>
             <a href="/concluidas" class="px-4 py-2 rounded-lg text-sm transition-all <?= $currentBase === 'concluidas' ? 'font-semibold bg-vivo-purple text-white shadow-sm' : 'font-medium text-gray-600 hover:text-vivo-purple hover:bg-vivo-purpleLight' ?>">Concluídas</a>
