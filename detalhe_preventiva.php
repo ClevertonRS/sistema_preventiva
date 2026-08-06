@@ -14,6 +14,10 @@ $stmt = $pdo->prepare("SELECT * FROM preventivas_rede WHERE id = :id LIMIT 1");
 $stmt->execute([':id' => $id]);
 $p = $stmt->fetch();
 
+$stmt = $pdo->prepare("SELECT * FROM atendimentos WHERE preventiva_id = :id LIMIT 1");
+$stmt->execute([':id' => $id]);
+$a = $stmt->fetch();
+
 if (!$p) {
     header('Location: /preventivas');
     exit;
@@ -107,8 +111,14 @@ setTimeout(function() {
             <p><strong>Prioridade:</strong> <?= htmlspecialchars($p['prioridade']) ?></p>
 
             <p><strong>Status:</strong>
-                <span class="font-bold <?= $p['status'] === 'aberta' ? 'text-amber-600' : ($p['status'] === 'concluida' ? 'text-emerald-600' : 'text-blue-600') ?>">
-                    <?= htmlspecialchars($p['status']) ?>
+                <span class="font-bold <?= $p['status'] === 'triagem' ? 'text-amber-600' : ($p['status'] === 'atendida' ? 'text-blue-600' : 'text-emerald-600') ?>">
+                <?php
+    if ($p['status'] == 'atendida') {
+        echo htmlspecialchars($a['status']);
+    } else {
+        echo htmlspecialchars($p['status']);
+    }
+?>
                 </span>
             </p>
             <?php if ($atendimento): ?>
@@ -118,12 +128,12 @@ setTimeout(function() {
         </div>
     </div>
 
-<?php if ($p['status'] === 'aberta'): ?>
+<?php if ($p['status'] === 'triagem'): ?>
         <?php
         // Verifica se já existe atendimento com análise salva
         $temAnaliseSalva = $atendimento && !empty($atendimento['descricao_analise']);
         $acaoForm = $temAnaliseSalva ? 'finalizar_execucao' : 'iniciar_analise';
-        $btnTexto = $temAnaliseSalva ? 'Finalizar Execução' : 'Salvar Análise e Iniciar Execução';
+        $btnTexto = $temAnaliseSalva ? 'Finalizar Execução' : 'Salvar Análise';
         ?>
 
         <div id="location-status" class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-2">
@@ -240,7 +250,7 @@ setTimeout(function() {
             </form>
         <?php endif; ?>
 
-    <?php elseif ($p['status'] === 'em_atendimento' && $atendimento): ?>
+    <?php elseif ($p['status'] === 'atendida' && $atendimento): ?>
         <?php if ($atendimento['status'] === 'analise'): ?>
             <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-4">
                 <div class="bg-amber-50 p-4 rounded-xl text-sm text-amber-800 border border-amber-200">
@@ -308,6 +318,68 @@ setTimeout(function() {
                 </form>
             </div>
 
+        <?php elseif ($atendimento['status'] === 'concluido'): ?>
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-4">
+                <h3 class="text-xs font-bold text-vivo-dark uppercase tracking-wider">Relatório do Serviço</h3>
+
+                <?php
+                    $fotosAnaliseConcluida = array_filter($arquivosAtendimento, fn($f) => $f['tipo'] === 'analise');
+                    $fotosExecucaoConcluida = array_filter($arquivosAtendimento, fn($f) => $f['tipo'] === 'execucao');
+                ?>
+
+                <div class="border-l-4 border-amber-400 pl-4 space-y-2">
+                    <h4 class="text-xs font-bold text-amber-700 uppercase tracking-wider">Análise</h4>
+                    <p class="text-xs text-gray-500"><strong>Técnico:</strong> <?= htmlspecialchars($atendimento['nome_analista'] ?? 'N/A') ?></p>
+                    <?php if (!empty($atendimento['descricao_analise'])): ?>
+                        <p class="text-sm text-gray-800 bg-amber-50 p-3 rounded-xl border border-amber-200">
+                            <?= nl2br(htmlspecialchars($atendimento['descricao_analise'])) ?>
+                        </p>
+                    <?php endif; ?>
+                    <?php if (!empty($atendimento['latitude_analise']) && !empty($atendimento['longitude_analise'])): ?>
+                        <a href="https://www.google.com/maps?q=<?= $atendimento['latitude_analise'] ?>,<?= $atendimento['longitude_analise'] ?>" target="_blank" class="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-bold text-amber-700 bg-amber-50 border border-amber-200 rounded-lg hover:bg-amber-100 transition w-fit">
+                            <i data-lucide="map-pin" class="w-3 h-3"></i>Local
+                        </a>
+                    <?php endif; ?>
+                    <?php if (!empty($fotosAnaliseConcluida)): ?>
+                        <p class="text-xs font-semibold text-amber-600">Fotos - Análise:</p>
+                        <div class="grid grid-cols-2 gap-3">
+                            <?php foreach ($fotosAnaliseConcluida as $arq): ?>
+                                <div class="space-y-1">
+                                    <img src="/<?= htmlspecialchars($arq['caminho_arquivo']) ?>" class="w-full h-32 object-cover rounded-xl border border-amber-200 shadow-sm">
+                                    <p class="text-[10px] text-gray-400 text-right"><?= date('d/m/Y H:i', strtotime($arq['criado_em'])) ?></p>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                    <?php endif; ?>
+                </div>
+
+                <div class="border-l-4 border-emerald-400 pl-4 space-y-2">
+                    <h4 class="text-xs font-bold text-emerald-700 uppercase tracking-wider">Execução</h4>
+                    <p class="text-xs text-gray-500"><strong>Técnico:</strong> <?= htmlspecialchars($atendimento['nome_executor'] ?? 'N/A') ?></p>
+                    <?php if (!empty($atendimento['descricao_execucao'])): ?>
+                        <p class="text-sm text-gray-800 bg-emerald-50 p-3 rounded-xl border border-emerald-200">
+                            <?= nl2br(htmlspecialchars($atendimento['descricao_execucao'])) ?>
+                        </p>
+                    <?php endif; ?>
+                    <?php if (!empty($atendimento['latitude_execucao']) && !empty($atendimento['longitude_execucao'])): ?>
+                        <a href="https://www.google.com/maps?q=<?= $atendimento['latitude_execucao'] ?>,<?= $atendimento['longitude_execucao'] ?>" target="_blank" class="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-lg hover:bg-emerald-100 transition w-fit">
+                            <i data-lucide="map-pin" class="w-3 h-3"></i>Local
+                        </a>
+                    <?php endif; ?>
+                    <?php if (!empty($fotosExecucaoConcluida)): ?>
+                        <p class="text-xs font-semibold text-emerald-600">Fotos - Execução:</p>
+                        <div class="grid grid-cols-2 gap-3">
+                            <?php foreach ($fotosExecucaoConcluida as $arq): ?>
+                                <div class="space-y-1">
+                                    <img src="/<?= htmlspecialchars($arq['caminho_arquivo']) ?>" class="w-full h-32 object-cover rounded-xl border border-emerald-200 shadow-sm">
+                                    <p class="text-[10px] text-gray-400 text-right"><?= date('d/m/Y H:i', strtotime($arq['criado_em'])) ?></p>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                    <?php endif; ?>
+                </div>
+            </div>
+
         <?php elseif ($atendimento['status'] === 'revisao'): ?>
             <div id="location-status" class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-2">
                 <h3 class="text-xs font-bold text-vivo-dark uppercase tracking-wider">Sua Localização <span class="text-red-500">*</span></h3>
@@ -324,6 +396,7 @@ setTimeout(function() {
                 <input type="hidden" name="acao" value="finalizar_revisao">
                 <input type="hidden" name="latitude" id="latitude4" value="">
                 <input type="hidden" name="longitude" id="longitude4" value="">
+                <input type="hidden" name="fotos_revisao_keep" id="fotos-revisao-keep" value="<?= htmlspecialchars(implode(',', array_column(array_filter($arquivosAtendimento, fn($f) => in_array($f['tipo'], ['execucao', 'revisao'], true)), 'id'))) ?>">
 
                 <?php if (!empty($atendimento['descricao_execucao'])): ?>
                     <div class="bg-amber-50 p-3 rounded-xl text-xs text-amber-800 border border-amber-200">
@@ -346,7 +419,7 @@ setTimeout(function() {
 
                 <div>
                     <label class="block text-xs font-bold text-vivo-dark uppercase tracking-wider mb-2">Nova Descrição (correção) <span class="text-red-500">*</span></label>
-                    <textarea name="descricao" rows="4" required placeholder="Descreva as correções realizadas..." class="w-full p-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-vivo-purple text-sm bg-gray-50"></textarea>
+                    <textarea name="descricao" rows="4" required placeholder="Descreva as correções realizadas..." class="w-full p-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-vivo-purple text-sm bg-gray-50"><?= htmlspecialchars($atendimento['descricao_execucao'] ?? '') ?></textarea>
                 </div>
 
                 <div>
@@ -371,14 +444,14 @@ setTimeout(function() {
                 </div>
 
                 <button type="submit" class="w-full bg-gradient-to-r from-vivo-purple to-purple-700 hover:from-vivo-purpleDark hover:to-purple-900 text-white font-bold py-4 rounded-xl shadow-lg shadow-purple-200 hover:shadow-xl transition-all duration-300 text-sm uppercase tracking-wider">
-                    <i data-lucide="refresh-cw" class="w-5 h-5 inline"></i> Reenviar para Análise
+                    <i data-lucide="refresh-cw" class="w-5 h-5 inline"></i> Reenviar
                 </button>
             </form>
         <?php endif; ?>
 
 
 
-    <?php elseif ($p['status'] === 'concluida' || ($atendimento && $atendimento['status'] === 'concluido')): ?>
+    <?php elseif ($p['status'] === 'atendida' && $atendimento && in_array($atendimento['status'], ['concluido', 'revisao'])): ?>
         <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-4">
             <h3 class="text-xs font-bold text-vivo-dark uppercase tracking-wider">Relatório do Serviço</h3>
 

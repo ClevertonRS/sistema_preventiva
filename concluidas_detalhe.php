@@ -25,7 +25,7 @@ $stmt = $pdo->prepare(
      LEFT JOIN usuarios ua ON ua.id = a.tecnico_analise_id
      LEFT JOIN usuarios ue ON ue.id = a.tecnico_execucao_id
      WHERE p.id = :id
-       AND p.status = 'concluida'
+       AND a.status = 'concluido'
        AND (a.tecnico_analise_id = :tecnico_id OR a.tecnico_execucao_id = :tecnico_id2)
      ORDER BY a.criado_em DESC
      LIMIT 1"

@@ -14,6 +14,40 @@ if (!csrf_validate($_POST['csrf_token'] ?? null)) {
     exit;
 }
 
+// ============================================================
+// AÇÃO: deletar_foto — Excluir foto individual (AJAX)
+// Tratada antes das validações gerais pois não exige preventiva_id/localização
+// ============================================================
+if (($_POST['acao'] ?? '') === 'deletar_foto') {
+    header('Content-Type: application/json; charset=utf-8');
+    $fotoId = (int)($_POST['foto_id'] ?? 0);
+    if (!$fotoId) {
+        echo json_encode(['ok' => false, 'error' => 'ID da foto inválido']);
+        exit;
+    }
+
+    $stmt = $pdo->prepare("SELECT caminho_arquivo FROM preventivas_arquivos WHERE id = :id");
+    $stmt->execute([':id' => $fotoId]);
+    $foto = $stmt->fetch();
+
+    if (!$foto) {
+        echo json_encode(['ok' => false, 'error' => 'Foto não encontrada']);
+        exit;
+    }
+
+    try {
+        $caminhoCompleto = __DIR__ . '/' . $foto['caminho_arquivo'];
+        if (file_exists($caminhoCompleto)) {
+            @unlink($caminhoCompleto);
+        }
+        $pdo->prepare("DELETE FROM preventivas_arquivos WHERE id = :id")->execute([':id' => $fotoId]);
+        echo json_encode(['ok' => true]);
+    } catch (Exception $e) {
+        echo json_encode(['ok' => false, 'error' => $e->getMessage()]);
+    }
+    exit;
+}
+
 $preventivaId = (int)($_POST['preventiva_id'] ?? 0);
 $atendimentoId = (int)($_POST['atendimento_id'] ?? 0);
 $descricaoAnalise = trim($_POST['descricao_analise'] ?? '');
@@ -53,7 +87,7 @@ $userId = $_SESSION['user_id'];
 // ============================================================
 // AÇÃO: iniciar_analise — Técnico faz apenas a análise primária
 // ============================================================
-if ($acao === 'iniciar_analise' && $prev['status'] === 'aberta') {
+if ($acao === 'iniciar_analise' && $prev['status'] === 'triagem') {
     if (empty($descricaoAnalise)) {
         header('Location: /preventiva/' . $preventivaId);
         exit;
@@ -75,7 +109,7 @@ if ($acao === 'iniciar_analise' && $prev['status'] === 'aberta') {
         ]);
         $novoAtendimentoId = $pdo->lastInsertId();
 
-        $pdo->prepare("UPDATE preventivas_rede SET status = 'em_atendimento' WHERE id = :id")
+        $pdo->prepare("UPDATE preventivas_rede SET status = 'atendida' WHERE id = :id")
             ->execute([':id' => $preventivaId]);
 
         salvarFotos($pdo, $preventivaId, $novoAtendimentoId, $userId);
@@ -92,7 +126,7 @@ if ($acao === 'iniciar_analise' && $prev['status'] === 'aberta') {
 // ============================================================
 // AÇÃO: aceitar_finalizar — Técnico faz tudo de uma vez
 // ============================================================
-elseif ($acao === 'aceitar_finalizar' && $prev['status'] === 'aberta') {
+elseif ($acao === 'aceitar_finalizar' && $prev['status'] === 'triagem') {
     if (empty($descricaoAnalise)) {
         header('Location: /preventiva/' . $preventivaId);
         exit;
@@ -118,7 +152,7 @@ elseif ($acao === 'aceitar_finalizar' && $prev['status'] === 'aberta') {
         ]);
         $novoAtendimentoId = $pdo->lastInsertId();
 
-        $pdo->prepare("UPDATE preventivas_rede SET status = 'concluida' WHERE id = :id")
+        $pdo->prepare("UPDATE preventivas_rede SET status = 'atendida' WHERE id = :id")
             ->execute([':id' => $preventivaId]);
 
         salvarFotos($pdo, $preventivaId, $novoAtendimentoId, $userId);
@@ -165,7 +199,7 @@ elseif ($acao === 'finalizar_execucao' && $atendimentoId) {
             ':lng_exec' => $longitude,
         ]);
 
-        $pdo->prepare("UPDATE preventivas_rede SET status = 'concluida' WHERE id = :id")
+        $pdo->prepare("UPDATE preventivas_rede SET status = 'atendida' WHERE id = :id")
             ->execute([':id' => $preventivaId]);
 
         salvarFotos($pdo, $preventivaId, $atendimentoId, $userId);
@@ -212,7 +246,7 @@ elseif ($acao === 'assumir_execucao' && $atendimentoId) {
             ':lng_exec' => $longitude,
         ]);
 
-        $pdo->prepare("UPDATE preventivas_rede SET status = 'concluida' WHERE id = :id")
+        $pdo->prepare("UPDATE preventivas_rede SET status = 'atendida' WHERE id = :id")
             ->execute([':id' => $preventivaId]);
 
         salvarFotos($pdo, $preventivaId, $atendimentoId, $userId);
@@ -274,11 +308,17 @@ elseif ($acao === 'finalizar_revisao' && $atendimentoId && !empty($descricao)) {
         exit;
     }
 
+    // Fotos de revisão a manter (IDs)
+    $keepIds = [];
+    if (!empty($_POST['fotos_revisao_keep'])) {
+        $keepIds = array_map('intval', explode(',', $_POST['fotos_revisao_keep']));
+    }
+
     try {
         $pdo->beginTransaction();
 
         $stmt = $pdo->prepare(
-            "UPDATE atendimentos SET descricao_execucao = :descricao, status = 'revisao', latitude_execucao = :lat_exec, longitude_execucao = :lng_exec WHERE id = :id"
+            "UPDATE atendimentos SET descricao_execucao = :descricao, status = 'concluido', concluido_em = NOW(), latitude_execucao = :lat_exec, longitude_execucao = :lng_exec WHERE id = :id"
         );
         $stmt->execute([
             ':descricao' => $descricao,
@@ -286,6 +326,25 @@ elseif ($acao === 'finalizar_revisao' && $atendimentoId && !empty($descricao)) {
             ':lat_exec' => $latitude,
             ':lng_exec' => $longitude,
         ]);
+
+        // Deletar fotos de execução que não estão na lista de keep (mantém as de análise)
+        if (!empty($keepIds)) {
+            $placeholders = implode(',', array_fill(0, count($keepIds), '?'));
+            $stmt = $pdo->prepare("SELECT id, caminho_arquivo FROM preventivas_arquivos WHERE atendimento_id = :atend_id AND tipo IN ('execucao','revisao') AND id NOT IN ($placeholders)");
+            $stmt->execute(array_merge([$atendimentoId], $keepIds));
+        } else {
+            $stmt = $pdo->prepare("SELECT id, caminho_arquivo FROM preventivas_arquivos WHERE atendimento_id = :atend_id AND tipo IN ('execucao','revisao')");
+            $stmt->execute([':atend_id' => $atendimentoId]);
+        }
+        $fotosDeletar = $stmt->fetchAll();
+
+        foreach ($fotosDeletar as $foto) {
+            $caminhoCompleto = __DIR__ . '/' . $foto['caminho_arquivo'];
+            if (file_exists($caminhoCompleto)) {
+                @unlink($caminhoCompleto);
+            }
+            $pdo->prepare("DELETE FROM preventivas_arquivos WHERE id = :id")->execute([':id' => $foto['id']]);
+        }
 
         salvarFotos($pdo, $preventivaId, $atendimentoId, $userId);
 
@@ -301,7 +360,8 @@ elseif ($acao === 'finalizar_revisao' && $atendimentoId && !empty($descricao)) {
 // ============================================================
 $returnUrl = $_POST['return_url'] ?? '';
 $allowedReturns = ['/preventivas', '/triagem', '/execucao', '/revisao', '/concluidas', '/dashboard'];
-if (!empty($returnUrl) && in_array($returnUrl, $allowedReturns, true)) {
+$isDetailReturn = (bool)preg_match('#^/(revisao|execucao|concluidas|preventiva)-detalhe/[0-9]+/?$#', $returnUrl);
+if ((!empty($returnUrl) && in_array($returnUrl, $allowedReturns, true)) || $isDetailReturn) {
     header('Location: ' . $returnUrl);
     exit;
 }

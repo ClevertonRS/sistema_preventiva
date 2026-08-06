@@ -9,10 +9,10 @@ $tecnicoId = $_SESSION['user_id'];
 try {
     $stmt = $pdo->prepare(
         "SELECT p.id, p.gpon, p.splitter, p.uf, p.localidade, p.prioridade, p.criado_em,
-                a.concluido_em
+                a.concluido_em, a.status AS atendimento_status
          FROM preventivas_rede p
          JOIN atendimentos a ON a.preventiva_id = p.id
-         WHERE p.status = 'concluida'
+         WHERE a.status = 'concluido'
            AND (a.tecnico_analise_id = :tecnico_id OR a.tecnico_execucao_id = :tecnico_id2)
          ORDER BY a.concluido_em DESC, p.criado_em DESC"
     );

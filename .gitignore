@@ -20,3 +20,6 @@ Thumbs.db
 
 # Logs e arquivos temporários
 *.log
+
+#SQL
+tom_preventiva.sql

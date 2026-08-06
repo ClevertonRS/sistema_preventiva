@@ -7,25 +7,30 @@ require_once __DIR__ . '/includes/header.php';
 $nomeUsuario = $_SESSION['user_nome'] ?? 'Operador';
 $inicialNome = strtoupper(substr($nomeUsuario, 0, 1));
 
-$statusCounts = [
-    'aberta' => 0,
-    'em_atendimento' => 0,
-    'concluida' => 0,
-];
+// Cards: Triagem (preventivas_rede.status='triagem'), Em Atendimento (atendimentos.status='analise'), Concluídas (atendimentos.status='concluido')
+$countTriagem = 0;
+$countEmAtendimento = 0;
+$countConcluidas = 0;
 
 try {
-    $stmtCounts = $pdo->query("SELECT status, COUNT(*) AS total FROM preventivas_rede GROUP BY status");
-    foreach ($stmtCounts->fetchAll() as $row) {
-        if (isset($statusCounts[$row['status']])) {
-            $statusCounts[$row['status']] = $row['total'];
-        }
-    }
+    // Triagem: preventivas_rede com status 'triagem'
+    $stmt = $pdo->query("SELECT COUNT(*) AS total FROM preventivas_rede WHERE status = 'triagem'");
+    $countTriagem = (int)$stmt->fetchColumn();
 
+    // Em Atendimento: atendimentos com status 'analise'
+    $stmt = $pdo->query("SELECT COUNT(*) AS total FROM atendimentos WHERE status = 'analise'");
+    $countEmAtendimento = (int)$stmt->fetchColumn();
+
+    // Concluídas: atendimentos com status 'concluido'
+    $stmt = $pdo->query("SELECT COUNT(*) AS total FROM atendimentos WHERE status = 'concluido'");
+    $countConcluidas = (int)$stmt->fetchColumn();
+
+    // Tarefas em revisão (atendimentos.status = 'revisao')
     $stmtTasks = $pdo->query(
-        "SELECT p.id, p.gpon, p.splitter, p.uf, p.localidade, p.status, p.prioridade, p.criado_em, a.status AS atendimento_status
+        "SELECT p.id, p.gpon, p.splitter, p.uf, p.localidade, p.prioridade, p.criado_em
          FROM preventivas_rede p
          JOIN atendimentos a ON a.preventiva_id = p.id
-         WHERE a.status = 'analise'
+         WHERE a.status = 'revisao'
          ORDER BY p.criado_em DESC"
     );
     $tasks = $stmtTasks->fetchAll();
@@ -102,22 +107,22 @@ try {
         <div class="bg-white p-4 rounded-xl shadow-sm border border-vivo-grayBorder flex items-center space-x-3">
           <div class="p-3 bg-amber-50 text-amber-600 rounded-lg"><i data-lucide="clock" class="w-6 h-6"></i></div>
           <div>
-            <span class="text-xs text-gray-500 block font-medium">Abertas</span>
-            <span class="text-xl font-bold text-gray-800"><?= $statusCounts['aberta'] ?></span>
+            <span class="text-xs text-gray-500 block font-medium">Triagem</span>
+            <span class="text-xl font-bold text-gray-800"><?= $countTriagem ?></span>
           </div>
         </div>
         <div class="bg-white p-4 rounded-xl shadow-sm border border-vivo-grayBorder flex items-center space-x-3">
           <div class="p-3 bg-blue-50 text-blue-600 rounded-lg"><i data-lucide="play-circle" class="w-6 h-6"></i></div>
           <div>
             <span class="text-xs text-gray-500 block font-medium">Em Atendimento</span>
-            <span class="text-xl font-bold text-gray-800"><?= $statusCounts['em_atendimento'] ?></span>
+            <span class="text-xl font-bold text-gray-800"><?= $countEmAtendimento ?></span>
           </div>
         </div>
         <div class="bg-white p-4 rounded-xl shadow-sm border border-vivo-grayBorder flex items-center space-x-3">
           <div class="p-3 bg-emerald-50 text-emerald-600 rounded-lg"><i data-lucide="check-circle" class="w-6 h-6"></i></div>
           <div>
             <span class="text-xs text-gray-500 block font-medium">Concluídas</span>
-            <span class="text-xl font-bold text-gray-800"><?= $statusCounts['concluida'] ?></span>
+            <span class="text-xl font-bold text-gray-800"><?= $countConcluidas ?></span>
           </div>
         </div>
       </div>
@@ -144,7 +149,7 @@ try {
                     </div>
                     <p class="text-xs text-gray-500"><?= htmlspecialchars($task['gpon']) ?> / <?= htmlspecialchars($task['splitter']) ?> • <?= htmlspecialchars($task['localidade']) ?></p>
                   </div>
-                  <a href="/preventiva/<?= htmlspecialchars($task['id']) ?>" class="text-xs uppercase font-bold text-vivo-purple hover:text-vivo-purpleDark">Ver detalhes</a>
+                  <a href="/revisao-detalhe/<?= htmlspecialchars($task['id']) ?>" class="text-xs uppercase font-bold text-vivo-purple hover:text-vivo-purpleDark">Acessar</a>
                 </div>
               <?php endforeach; ?>
             <?php endif; ?>

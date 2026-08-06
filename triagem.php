@@ -5,7 +5,7 @@ require_once __DIR__ . '/includes/security.php';
 require_once __DIR__ . '/includes/header.php';
 
 try {
-    $stmt = $pdo->prepare("SELECT id, gpon, splitter, uf, localidade, prioridade, criado_em FROM preventivas_rede WHERE status = 'aberta' ORDER BY criado_em DESC");
+    $stmt = $pdo->prepare("SELECT id, gpon, splitter, uf, localidade, prioridade, criado_em FROM preventivas_rede WHERE status = 'triagem' ORDER BY criado_em DESC");
     $stmt->execute();
     $tasks = $stmt->fetchAll();
 } catch (PDOException $e) {
@@ -17,7 +17,7 @@ try {
   <div class="flex items-center justify-between">
     <div>
       <h1 class="text-xl font-bold text-vivo-purple">Fila <?= count($tasks) ?> de Triagem</h1>
-      <p class="text-sm text-gray-500 mt-1">Preventivas com status <strong>aberta</strong></p>
+      <p class="text-sm text-gray-500 mt-1">Preventivas com status <strong>triagem</strong></p>
     </div>
   </div>
 </div>

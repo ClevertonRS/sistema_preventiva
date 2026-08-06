@@ -6,13 +6,12 @@ require_once __DIR__ . '/includes/header.php';
 
 $statusSlug = $_GET['status'] ?? '';
 $statusMap = [
-    'aberta' => 'aberta',
-    'em_atendimento' => 'em_atendimento',
-    'concluida' => 'concluida',
+    'triagem' => 'triagem',
+    'atendida' => 'atendida',
 ];
 
 $statusFilter = $statusMap[$statusSlug] ?? '';
-$pageTitle = $statusFilter ? "Preventivas: $statusFilter" : 'Todas as Preventivas';
+$pageTitle = $statusFilter ? "Preventivas: " . ucfirst($statusFilter) : 'Todas as Preventivas';
 $whereSql = '';
 $params = [];
 
@@ -21,7 +20,7 @@ if ($statusFilter) {
     $params[':status'] = $statusFilter;
 }
 
-$sql = "SELECT id, titulo, gpon, splitter, uf, localidade, status, prioridade, criado_em FROM preventivas_rede $whereSql ORDER BY FIELD(status,'aberta','em_atendimento','concluida'), criado_em DESC";
+$sql = "SELECT id, gpon, splitter, uf, localidade, status, prioridade, criado_em FROM preventivas_rede $whereSql ORDER BY FIELD(status,'triagem','atendida'), criado_em DESC";
 $stmt = $pdo->prepare($sql);
 $stmt->execute($params);
 $tasks = $stmt->fetchAll();
@@ -35,8 +34,8 @@ $tasks = $stmt->fetchAll();
     </div>
     <div class="grid grid-cols-3 gap-2">
       <a href="/preventivas" class="text-xs text-center px-3 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 transition">Todas</a>
-      <a href="/preventivas?status=aberta" class="text-xs text-center px-3 py-2 rounded-xl bg-amber-50 hover:bg-amber-100 transition">Abertas</a>
-      <a href="/preventivas?status=em_atendimento" class="text-xs text-center px-3 py-2 rounded-xl bg-blue-50 hover:bg-blue-100 transition">Em Atendimento</a>
+      <a href="/preventivas?status=triagem" class="text-xs text-center px-3 py-2 rounded-xl bg-amber-50 hover:bg-amber-100 transition">Triagem</a>
+      <a href="/preventivas?status=atendida" class="text-xs text-center px-3 py-2 rounded-xl bg-blue-50 hover:bg-blue-100 transition">Atendida</a>
     </div>
   </div>
 </div>
@@ -51,21 +50,18 @@ $tasks = $stmt->fetchAll();
       <?php
         $badgeClass = 'bg-gray-100 text-gray-700 border-gray-200';
         switch ($task['status']) {
-          case 'aberta':
+          case 'triagem':
             $badgeClass = 'bg-amber-50 text-amber-700 border-amber-200';
             break;
-          case 'em_atendimento':
+          case 'atendida':
             $badgeClass = 'bg-blue-50 text-blue-700 border-blue-200';
-            break;
-          case 'concluida':
-            $badgeClass = 'bg-emerald-50 text-emerald-700 border-emerald-200';
             break;
         }
       ?>
       <a href="/preventiva/<?= htmlspecialchars($task['id']) ?>" class="block bg-white p-5 rounded-2xl shadow-sm border border-gray-100 hover:border-vivo-purple transition">
         <div class="flex items-start justify-between gap-4">
           <div class="space-y-2">
-            <h2 class="text-base font-bold text-gray-900"><?= htmlspecialchars($task['titulo'] ?? 'Preventiva') ?></h2>
+            <h2 class="text-base font-bold text-gray-900">OS #<?= str_pad($task['id'], 4, '0', STR_PAD_LEFT) ?></h2>
             <p class="text-xs text-gray-500">#<?= htmlspecialchars($task['id']) ?> • <?= htmlspecialchars($task['gpon']) ?> / <?= htmlspecialchars($task['splitter']) ?> • <?= htmlspecialchars($task['localidade']) ?></p>
           </div>
           <span class="inline-flex items-center text-[10px] uppercase tracking-[0.24em] px-3 py-1 rounded-full font-bold border <?= $badgeClass ?>"><?= htmlspecialchars($task['status']) ?></span>
