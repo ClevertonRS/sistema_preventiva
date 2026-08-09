@@ -333,7 +333,7 @@ setTimeout(function() {
                     <h4 class="text-xs font-bold text-amber-700 uppercase tracking-wider">Análise</h4>
                     <p class="text-xs text-gray-500"><strong>Técnico:</strong> <?= htmlspecialchars($atendimento['nome_analista'] ?? 'N/A') ?></p>
                     <?php if (!empty($atendimento['descricao_analise'])): ?>
-                        <p class="text-sm text-gray-800 bg-amber-50 p-3 rounded-xl border border-amber-200">
+                        <p class="text-sm text-gray-800 bg-amber-50 p-3 rounded-xl border border-amber-200 break-words break-all" style="overflow-wrap:anywhere; word-break:break-word;">
                             <?= nl2br(htmlspecialchars($atendimento['descricao_analise'])) ?>
                         </p>
                     <?php endif; ?>
@@ -359,7 +359,7 @@ setTimeout(function() {
                     <h4 class="text-xs font-bold text-emerald-700 uppercase tracking-wider">Execução</h4>
                     <p class="text-xs text-gray-500"><strong>Técnico:</strong> <?= htmlspecialchars($atendimento['nome_executor'] ?? 'N/A') ?></p>
                     <?php if (!empty($atendimento['descricao_execucao'])): ?>
-                        <p class="text-sm text-gray-800 bg-emerald-50 p-3 rounded-xl border border-emerald-200">
+                        <p class="text-sm text-gray-800 bg-emerald-50 p-3 rounded-xl border border-emerald-200 break-words break-all" style="overflow-wrap:anywhere; word-break:break-word;">
                             <?= nl2br(htmlspecialchars($atendimento['descricao_execucao'])) ?>
                         </p>
                     <?php endif; ?>
@@ -401,7 +401,7 @@ setTimeout(function() {
                 <input type="hidden" name="fotos_revisao_keep" id="fotos-revisao-keep" value="<?= htmlspecialchars(implode(',', array_column(array_filter($arquivosAtendimento, fn($f) => in_array($f['tipo'], ['execucao', 'revisao'], true)), 'id'))) ?>">
 
                 <?php if (!empty($atendimento['descricao_execucao'])): ?>
-                    <div class="bg-amber-50 p-3 rounded-xl text-xs text-amber-800 border border-amber-200">
+                    <div class="bg-amber-50 p-3 rounded-xl text-xs text-amber-800 border border-amber-200 break-words break-all" style="overflow-wrap:anywhere; word-break:break-word;">
                         <strong>Descrição anterior:</strong><br>
                         <?= nl2br(htmlspecialchars($atendimento['descricao_execucao'])) ?>
                     </div>
@@ -467,7 +467,7 @@ setTimeout(function() {
                     <h4 class="text-xs font-bold text-amber-700 uppercase tracking-wider">Análise</h4>
                     <p class="text-xs text-gray-500"><strong>Técnico:</strong> <?= htmlspecialchars($atendimento['nome_analista'] ?? 'N/A') ?></p>
                     <?php if (!empty($atendimento['descricao_analise'])): ?>
-                        <p class="text-sm text-gray-800 bg-amber-50 p-3 rounded-xl border border-amber-200">
+                        <p class="text-sm text-gray-800 bg-amber-50 p-3 rounded-xl border border-amber-200 break-words break-all" style="overflow-wrap:anywhere; word-break:break-word;">
                             <?= nl2br(htmlspecialchars($atendimento['descricao_analise'])) ?>
                         </p>
                     <?php endif; ?>
@@ -493,7 +493,7 @@ setTimeout(function() {
                     <h4 class="text-xs font-bold text-emerald-700 uppercase tracking-wider">Execução</h4>
                     <p class="text-xs text-gray-500"><strong>Técnico:</strong> <?= htmlspecialchars($atendimento['nome_executor'] ?? 'N/A') ?></p>
                     <?php if (!empty($atendimento['descricao_execucao'])): ?>
-                        <p class="text-sm text-gray-800 bg-emerald-50 p-3 rounded-xl border border-emerald-200">
+                        <p class="text-sm text-gray-800 bg-emerald-50 p-3 rounded-xl border border-emerald-200 break-words break-all" style="overflow-wrap:anywhere; word-break:break-word;">
                             <?= nl2br(htmlspecialchars($atendimento['descricao_execucao'])) ?>
                         </p>
                     <?php endif; ?>
