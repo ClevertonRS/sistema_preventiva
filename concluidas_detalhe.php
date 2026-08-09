@@ -86,7 +86,7 @@ $arquivos = $stmtArquivos->fetchAll();
     <h4 class="text-xs font-bold text-amber-700 uppercase tracking-wider">Análise</h4>
     <p class="text-xs text-gray-500"><strong>Técnico:</strong> <?= htmlspecialchars($p['nome_analista'] ?? 'N/A') ?></p>
     <?php if (!empty($p['descricao_analise'])): ?>
-      <p class="text-sm text-gray-800 bg-amber-50 p-3 rounded-xl border border-amber-200">
+      <p class="text-sm text-gray-800 bg-amber-50 p-3 rounded-xl border border-amber-200 break-words break-all" style="overflow-wrap:anywhere; word-break:break-word;">
         <?= nl2br(htmlspecialchars($p['descricao_analise'])) ?>
       </p>
     <?php endif; ?>
@@ -114,7 +114,7 @@ $arquivos = $stmtArquivos->fetchAll();
     <h4 class="text-xs font-bold text-emerald-700 uppercase tracking-wider">Execução</h4>
     <p class="text-xs text-gray-500"><strong>Técnico:</strong> <?= htmlspecialchars($p['nome_executor'] ?? 'N/A') ?></p>
     <?php if (!empty($p['descricao_execucao'])): ?>
-      <p class="text-sm text-gray-800 bg-emerald-50 p-3 rounded-xl border border-emerald-200">
+      <p class="text-sm text-gray-800 bg-emerald-50 p-3 rounded-xl border border-emerald-200 break-words break-all" style="overflow-wrap:anywhere; word-break:break-word;">
         <?= nl2br(htmlspecialchars($p['descricao_execucao'])) ?>
       </p>
     <?php endif; ?>
