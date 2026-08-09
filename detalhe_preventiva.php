@@ -148,11 +148,13 @@ setTimeout(function() {
             <!-- ANÁLISE JÁ SALVA - Mostrar read-only + formulário de execução -->
             <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-4">
                 <div class="bg-amber-50 p-4 rounded-xl text-sm text-amber-800 border border-amber-200">
-                    <div class="flex items-center justify-between mb-2">
-                        <strong>Análise realizada por:</strong> <?= htmlspecialchars($atendimento['nome_analista']) ?>
-                        <span class="text-[10px] uppercase font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-700">Salva</span>
+                    <div class="flex items-center justify-between gap-2 mb-2">
+                        <span class="min-w-0 break-words">
+                            <strong>Análise realizada por:</strong> <?= htmlspecialchars($atendimento['nome_analista']) ?>
+                        </span>
+                        <span class="shrink-0 text-[10px] uppercase font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-700">Salva</span>
                     </div>
-                    <p class="mt-1"><?= nl2br(htmlspecialchars($atendimento['descricao_analise'] ?? '')) ?></p>
+                    <p class="mt-1 break-words break-all" style="overflow-wrap:anywhere; word-break:break-word;"><?= nl2br(htmlspecialchars($atendimento['descricao_analise'] ?? '')) ?></p>
                 </div>
 
                 <?php $fotosAnalise = array_filter($arquivosAtendimento, fn($f) => $f['tipo'] === 'analise'); ?>
@@ -255,7 +257,7 @@ setTimeout(function() {
             <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-4">
                 <div class="bg-amber-50 p-4 rounded-xl text-sm text-amber-800 border border-amber-200">
                     <strong>Análise realizada por:</strong> <?= htmlspecialchars($atendimento['nome_analista']) ?>
-                    <p class="mt-1"><?= nl2br(htmlspecialchars($atendimento['descricao_analise'] ?? '')) ?></p>
+                    <p class="mt-1 break-words break-all" style="overflow-wrap:anywhere; word-break:break-word;"><?= nl2br(htmlspecialchars($atendimento['descricao_analise'] ?? '')) ?></p>
                 </div>
 
                 <?php $fotosAnalise = array_filter($arquivosAtendimento, fn($f) => $f['tipo'] === 'analise'); ?>
