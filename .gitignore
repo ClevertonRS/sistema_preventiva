@@ -8,6 +8,8 @@ tom_preventiva.sql
 .env.local
 *.env
 
+admin
+
 # Uploads e Evidências dos Técnicos (mantém a pasta, ignora o conteúdo)
 /uploads/*
 !/uploads/.gitkeep
