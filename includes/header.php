@@ -34,6 +34,8 @@ if (!headers_sent()) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Painel Preventiva - Home</title>
 
+    <link rel="icon" type="image/svg+xml" href="/assets/icons/vivo-icon-png-12790.svg" />
+
     <!-- PWA Meta Tags -->
     <meta name="theme-color" content="#660099" />
     <meta name="mobile-web-app-capable" content="yes" />
