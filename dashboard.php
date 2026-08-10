@@ -158,9 +158,9 @@ try {
 
         <div class="space-y-6">
           <div class="bg-white p-5 rounded-xl shadow-sm border border-vivo-grayBorder">
-            <h3 class="text-sm font-bold text-gray-800">A Vivo</h3>
+            <h3 class="text-sm font-bold text-gray-800">Nós</h3>
             <p class="text-xs text-gray-500 mt-2 leading-relaxed">
-              Buscamos constantemente a digitalização das empresas brasileiras com tecnologia robusta e análise inteligente de dados.
+              Buscamos constantemente a digitalização com tecnologia robusta e análise inteligente de dados.
             </p>
           </div>
         </div>

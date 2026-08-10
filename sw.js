@@ -1,16 +1,21 @@
-const CACHE_NAME = "vivo-preventivas-v3";
+const CACHE_NAME = "vivo-preventivas-v4";
 const ASSETS_TO_CACHE = [
   "./",
   "./login.php",
   "./dashboard.php",
   "./assets/icons/manifest.json",
-  "https://cdn.tailwindcss.com",
 ];
 
 // Instalação do Service Worker e gravação do App Shell
 self.addEventListener("install", (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS_TO_CACHE)),
+    caches.open(CACHE_NAME).then((cache) =>
+      Promise.all(
+        ASSETS_TO_CACHE.map((url) =>
+          cache.add(url).catch(() => {}),
+        ),
+      ),
+    ),
   );
   self.skipWaiting();
 });

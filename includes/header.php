@@ -39,6 +39,8 @@ if (!headers_sent()) {
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta name="apple-mobile-web-app-title" content="Painel Vivo" />
+    <link rel="manifest" href="/assets/icons/manifest.json" />
+    <link rel="apple-touch-icon" href="/assets/icons/vivo-icon-png-12790.svg" />
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -102,10 +104,10 @@ if (!headers_sent()) {
           </nav> 
 
           <div class="flex items-center space-x-3">
-            <!-- <button id="install-pwa" type="button" class="flex items-center gap-2 bg-vivo-accent hover:bg-pink-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold shadow-md transition-all">
+            <button id="install-pwa" type="button" class="hidden items-center gap-2 bg-vivo-accent hover:bg-pink-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold shadow-md transition-all">
               <i data-lucide="download" class="w-3.5 h-3.5"></i>
               <span>Baixar App</span>
-            </button> -->
+            </button>
             <a href="/logout" class="w-9 h-9 rounded-full bg-vivo-purple text-white flex items-center justify-center font-bold text-sm border-2 border-vivo-purpleLight">C</a>
           </div>
         </div>

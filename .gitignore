@@ -9,6 +9,7 @@ tom_preventiva.sql
 *.env
 
 admin
+assets
 
 # Uploads e Evidências dos Técnicos (mantém a pasta, ignora o conteúdo)
 /uploads/*

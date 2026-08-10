@@ -52,27 +52,92 @@
     <script>
       lucide.createIcons();
 
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js')
+            .catch((err) => console.error('SW registration falhou:', err));
+        });
+      }
+
       const installBtn = document.getElementById('install-pwa');
       let deferredPrompt = null;
 
-      window.addEventListener('beforeinstallprompt', (event) => {
-        event.preventDefault();
-        deferredPrompt = event;
-        if (installBtn) {
+      const isInstalled = () => {
+        return window.matchMedia('(display-mode: standalone)').matches ||
+               window.navigator.standalone === true ||
+               document.referrer.startsWith('android-app://');
+      };
+
+      const showInstallBtn = () => {
+        if (installBtn && !isInstalled()) {
           installBtn.classList.remove('hidden');
+          installBtn.classList.add('flex');
         }
+      };
+
+      const hideInstallBtn = () => {
+        if (installBtn) {
+          installBtn.classList.add('hidden');
+          installBtn.classList.remove('flex');
+        }
+      };
+
+      const showInstallHelp = () => {
+        const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+        const steps = isIOS
+          ? [
+              'Toque no botão Compartilhar (seta para cima).',
+              'Role a lista e toque em "Adicionar à Tela de Início".',
+              'Toque em "Adicionar" para confirmar.'
+            ]
+          : [
+              'Toque no menu ⋮ (três pontos) do navegador.',
+              'Toque em "Instalar app" ou "Adicionar à tela inicial".',
+              'Confirme a instalação.'
+            ];
+
+        Swal.fire({
+          title: 'Instalar o aplicativo',
+          html: '<ol class="text-left text-sm space-y-2" style="list-style:decimal inside">' +
+                steps.map((s) => `<li>${s}</li>`).join('') +
+                '</ol>',
+          icon: 'info',
+          confirmButtonText: 'Entendi',
+          confirmButtonColor: '#660099'
+        });
+      };
+
+      if (installBtn && !isInstalled()) {
+        window.addEventListener('beforeinstallprompt', (event) => {
+          event.preventDefault();
+          deferredPrompt = event;
+          showInstallBtn();
+        });
+
+        // Fallback: se o navegador não disparar o evento (ex.: logo após
+        // desinstalar, iOS Safari, etc.), ainda exibe o botão com instruções.
+        setTimeout(() => {
+          if (!deferredPrompt && !isInstalled()) {
+            showInstallBtn();
+          }
+        }, 3000);
+      }
+
+      window.addEventListener('appinstalled', () => {
+        hideInstallBtn();
       });
 
       if (installBtn) {
         installBtn.addEventListener('click', async () => {
           if (!deferredPrompt) {
+            showInstallHelp();
             return;
           }
 
           deferredPrompt.prompt();
           await deferredPrompt.userChoice;
           deferredPrompt = null;
-          installBtn.classList.add('hidden');
+          hideInstallBtn();
         });
       }
 
